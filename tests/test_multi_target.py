@@ -81,9 +81,10 @@ class MultiTargetTests(unittest.IsolatedAsyncioTestCase):
         deps = self.deps(omit_answer=True)
         result = await self.run_graph(deps)
         self.assertEqual(deps.quality_llm.write.await_count, 3)
-        self.assertIn("[누락 대상 근거 보충: cache-service]", result["final"])
+        self.assertIn("검증 미통과", result["final"])
+        self.assertFalse(result["validation_passed"])
         self.assertIn("메모리 매뉴얼", result["final"])
-        self.assertIn("AnswerCoverageSupplemented", [e["type"] for e in result["events"]])
+        self.assertFalse(result["events"][-1]["verified"])
 
     async def test_existing_one_runbook_does_not_cover_other_system(self):
         state = {"registered_targets": [PAY, CACHE], "tasks": [], "events": [], "collected": [

@@ -1,0 +1,18 @@
+{
+  "cpu-spike": {
+    "step": 3,
+    "metric": "cpu_percent",
+    "operator": "gt",
+    "threshold": 90,
+    "additional_confirmation": true,
+    "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+  },
+  "memory-leak": {
+    "step": 2,
+    "metric": "memory_percent",
+    "operator": "ge",
+    "threshold": 90,
+    "additional_confirmation": false,
+    "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+  }
+}

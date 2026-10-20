@@ -98,28 +98,18 @@ class QualityLLM(FakeLLM):
 
         fake 백엔드는 실제 네트워크 호출이 없어 토큰 단위로 쪼갤 대상이 없다 —
         ollama_llm.py와 인터페이스(on_token 콜백)만 맞추고 결과를 한 번에 반환한다."""
+        import json
+        from .evidence import report_contract
         if attempt == 1:
-            draft = "재시작하면 됩니다."
-            if on_token is not None:
-                on_token(draft)
-            return draft, self._usage(query, draft)
-
-        mon = [c for c in collected if c["source"] == "monitoring"]
-        run = [c for c in collected if c["source"] == "runbook"]
-        summary = " · ".join(
-            f"{c['data']['system_name']} 상태={c['data']['status']}, "
-            f"CPU {c['data']['cpu_percent']}% (알림 {len(c['data']['alerts'])}건)"
-            for c in mon)
-        lines = [f"'{query}' 진단 결과:", f"1) 모니터링: {summary}"]
-        for item in run:
-            body_lines = [l.strip() for l in item["data"].strip().splitlines() if l.strip()]
-            title = body_lines[0].lstrip("# ")
-            steps = [m.group(1) for l in body_lines[1:]
-                     if (m := re.match(r"^\d+\.\s+(.*)", l))]
-            advice = " ".join(steps[1:3]) or "표준 절차를 따라 조치하세요."
-            lines.append(f"2) {item.get('system_name', '대상 미지정')} 표준 절차: '{title}'에 따라 {advice}")
-        lines.append("3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요.")
-        draft = " ".join(lines)
+            return "재시작하면 됩니다.", self._usage(query, "재시작하면 됩니다.")
+        systems = []
+        for item in report_contract(collected):
+            actions = [{"runbook_source": book["source_id"], "step": step,
+                        "condition_status": book["conditions"][step]["status"]}
+                       for book in item["runbooks"] for step in book["steps"]]
+            systems.append({"system_name": item["system_name"], "monitoring_source": item["monitoring_source"],
+                            "cause": "undetermined", "actions": actions})
+        draft = json.dumps({"systems": systems}, ensure_ascii=False)
         if on_token is not None:
             on_token(draft)
         return draft, self._usage(query + str(feedback), draft)
