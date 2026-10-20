@@ -86,7 +86,7 @@ class GraphGuardTests(unittest.IsolatedAsyncioTestCase):
             call_tool=AsyncMock(side_effect=lambda name, args: {"system_name": args["system_name"], "status": "degraded", "cpu_percent": 91, "alerts": ["CPU high"]}),
             find_resource_template=AsyncMock(return_value=("ops", "runbook://{incident_type}")),
             read_resource=AsyncMock(return_value="# CPU 매뉴얼\n1. CPU 확인\n2. 부하 분산"))
-        result = await self.invoke(SimpleNamespace(fast_llm=fast, quality_llm=quality, mcp=mcp), "payments-service CPU 급증")
+        result = await self.invoke(SimpleNamespace(fast_llm=fast, quality_llm=quality, mcp=mcp), "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요")
         self.assertEqual(result["route"], "incident")
         self.assertTrue(result["final"])
         self.assertTrue(mcp.call_tool.called)

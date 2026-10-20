@@ -20,6 +20,7 @@ from langsmith import traceable
 from .deps import SupervisorDeps
 from .retry import with_retry
 from .targets import load_known_systems, resolve_targets
+from .routing import should_promote_incident
 from .planning import reconcile_monitoring_tasks
 
 
@@ -86,8 +87,14 @@ async def clarify_target_node(state: AgentState, deps: SupervisorDeps) -> dict:
 async def route_node(state: AgentState, deps: SupervisorDeps) -> dict:
     """Wave 5 — 모든 쿼리가 무거운 파이프라인을 탈 필요는 없다."""
     result, usage = deps.fast_llm.route(state["query"])
-    event = {"type": "RouteDecided", "route": result["route"]}
-    return {"route": result["route"], "needs_analysis": result["needs_analysis"],
+    original_route = result["route"]
+    promoted = original_route == "chat" and should_promote_incident(
+        state["query"], state.get("registered_targets", []))
+    route = "incident" if promoted else original_route
+    event = {"type": "RouteDecided", "route": route,
+             "original_route": original_route,
+             "reason": "named_system_symptom" if promoted else "model"}
+    return {"route": route, "needs_analysis": result["needs_analysis"],
             "cost_usd": _cost(state, usage),
             "events": state.get("events", []) + [event]}
 
