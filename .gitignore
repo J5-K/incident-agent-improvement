@@ -1,0 +1,20 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+# Environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+# Local session data and logs
+session.db
+session.db-*
+*.log
+# OS metadata and local source archives
+.DS_Store
+원본소스_개선전.zip
+original_source.zip

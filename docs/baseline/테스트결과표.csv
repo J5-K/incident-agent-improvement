@@ -1,0 +1,11 @@
+﻿번호,시나리오,상태,매뉴얼
+01,CPU 급증,완료,cpu-spike
+02,CPU 다른 표현,완료: 일반대화 오분류,없음
+03,메모리 증가,완료,memory-leak
+04,메모리 다른 표현,완료,memory-leak
+05,로그 저장공간,완료,disk-full
+06,타임아웃,완료,network-timeout
+07,로그인 지연,완료,high-latency
+08,복수 시스템,완료: cache-service 조사 누락,cpu-spike
+09,미등록 시스템,완료: auth-service 임의 대체,high-latency
+10,일반 대화,완료,해당 없음
