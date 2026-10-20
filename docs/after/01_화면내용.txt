@@ -1,0 +1,13 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: payments-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: payments-service) (재시도 성공)"
+- generic: ⏳ 정보 부족 → 장애유형 "cpu-spike"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **payments-service** 상태=degraded, CPU 90.9% → **Runbook 3** 적용: CPU 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하 분산. 2) **payments-service-3** 알림 'responding slow' → **Runbook 2** 적용: 최근 로그에서 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴 확인. 3) **payments-service** 패턴 분석: 특이 패턴 없음 → **Runbook 5** 적용: 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드 식별 및 최적화 작업 등록."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

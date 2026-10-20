@@ -1,0 +1,4 @@
+﻿ref,commit,case_count,completion_rate,route_match_rate,exact_target_match_rate,per_system_runbook_match_rate,structured_numeric_fact_match_rate,structured_numeric_fact_case_count,unsafe_injected_draft_published_rate,failure_case_error_observed_rate,elapsed_seconds_total
+2c2973d,2c2973deffe6b2b8f81613c19fd45a9b1454ec94,15,0.9333,0.4286,0.1429,0.0,,0,1.0,1.0,3.988
+f3836e2,f3836e29164bad94f68a00aeb8a8b9f1220b64cd,15,0.9333,0.9286,0.9286,0.9167,,0,1.0,1.0,8.288
+HEAD,4d518cbf29c844175c161d2603eb12ad8fa7ea7f,15,0.9333,0.9286,0.9286,0.9167,1.0,11,0.0,1.0,8.321

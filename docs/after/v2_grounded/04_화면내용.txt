@@ -1,0 +1,14 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: cache-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: cache-service) (재시도 성공)"
+- generic: ⏳ 정보 부족 → 장애유형 "memory-leak"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 출처·대상·조건 검사 통과
+- generic: ⏳ 출처·조건 검사 완료 · 출처 2개 · 작성 1회
+- generic: ⏳ 최종 답변 완성
+- generic: "[출처·조건 검증 완료] 작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님 1) 확인된 사실 - cache-service: 상태=degraded, CPU 45.6%, 메모리 90.8% [monitoring:cache-service] 원본 경고(현재 수치와 별개이며 시점 미확인): memory usage climbing steadily over 6h; heap near limit 2) 원인 추정 — 확정 사실 아님 - cache-service: 메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다. [monitoring:cache-service] 3) 권장 점검·조건부 조치 — 실행은 운영자 판단 - cache-service [runbook:cache-service:memory-leak #2]: 수치 조건 충족 / 실행 승인 아님 / memory_percent 90.8% >= 90%: 수치 조건 충족 참고 원문(즉시 실행 지시 아님): OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 수치 조건 대조(선택 단계와 별도로 표시) - cache-service: 수치 조건 충족 / 실행 승인 아님 / memory_percent 90.8% >= 90%: 수치 조건 충족 [runbook:cache-service:memory-leak #2] 4) 참고 출처 - [monitoring:cache-service] MCP Tool get_monitoring_status / 대상 cache-service - [runbook:cache-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops 추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

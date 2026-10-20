@@ -1,3 +1,5 @@
+> 이 문서는 제공 코드의 원본 교육 매뉴얼입니다. 현재 직접 구현한 개선·실행·검증 상태는 [프로젝트 README](../README.md)를 참고하세요.
+
 # all_total_vue — 운영 인시던트 대응 에이전트 (Vue 프론트엔드 버전)
 
 `all_total`과 백엔드(server.py, agent/, mcp_server.py 등)는 완전히 동일하고, 브라우저

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "01",
+    "category": "직접 표현",
+    "question": "payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "cpu-spike"
+    ],
+    "screenshot": "01_직접 표현_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: payments-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: payments-service) (재시도 성공)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"cpu-spike\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **payments-service** 상태=degraded, CPU 90.9% → **Runbook 3** 적용: CPU 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하 분산. 2) **payments-service-3** 알림 'responding slow' → **Runbook 2** 적용: 최근 로그에서 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴 확인. 3) **payments-service** 패턴 분석: 특이 패턴 없음 → **Runbook 5** 적용: 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드 식별 및 최적화 작업 등록.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "CPU 매뉴얼 연결, 최종 답변 완료",
+    "quality_note": "특이 패턴 없음이라는 표현은 원인 확정 근거가 아님",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "02",
+    "category": "다른 표현",
+    "question": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "cpu-spike"
+    ],
+    "screenshot": "02_다른 표현_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: payments-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: payments-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"cpu-spike\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **payments-service** 상태=degraded, CPU 88.4%, 메모리 53.7%, 알림 2건 ['CPU 91% (threshold 80%)', 'payments-service-3 instance responding slow'] → Runbook 3단계: CPU 90%를 넘고 지속되는 경우, 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하 분산 2) **payments-service-3 instance** 응답 지연 → Runbook 3단계: 부하 분산 후 정상화 여부 확인 및 프로파일링 결과 기반 최적화 작업 등록 3) **payments-service** 전체 상태 → Runbook 5단계: 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드 식별 및 최적화 작업 등록 (특이 패턴 없음)\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "기존 chat 오분류 대신 조사 및 cpu-spike 조회",
+    "quality_note": "CPU 현재값과 고정 알림의 차이 설명이 부족하고 단계 번호/설명이 일부 불일치",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "03",
+    "category": "메모리",
+    "question": "cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "memory-leak"
+    ],
+    "screenshot": "03_메모리_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: cache-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: cache-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"memory-leak\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **cache-service** 상태=degraded, 메모리 88.3% 사용 중. **Runbook** 1단계: 메모리 사용률 추세 확인(6시간 이상 꾸준히 증가 중). 2) **cache-service** 메모리 88.3% 사용, 알림 'heap near limit' 발생. **Runbook** 2단계: OOM 직전(90% 이상)이면 즉시 재시작(임시 조치 기록). 3) **cache-service** 힙 덤프 분석 필요. **Runbook** 3단계: 힙 덤프 또는 프로파일링 도구로 누수 원인(예: 무제한 캐시 증가, 커넥션 미반환 등) 확인.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "memory-leak 조회",
+    "quality_note": "88.3% 현재값에서 90% 이상일 때의 조건부 조치가 제시됨. 실제 실행은 하지 않음",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "04",
+    "category": "다른 표현",
+    "question": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.",
+    "expected_runbooks": [
+      "memory-leak"
+    ],
+    "screenshot": "04_다른 표현_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: cache-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: cache-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"memory-leak\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **cache-service** 상태=degraded, 메모리 88.8% 사용 중 (알림: 'memory usage climbing steadily over 6h', 'heap near limit') → Runbook 1단계(메모리 사용률 추세 확인) 수행 2) 메모리 사용률 88.8%로 OOM 직전(90% 이상)에 근접 → Runbook 2단계(프로세스 재시작) 수행 (재시작은 임시 조치임을 기록) 3) 힙 덤프 또는 프로파일링 도구로 메모리 누수 원인(예: 캐시 무제한 증가, 커넥션 미반환 등) 분석 → Runbook 3단계 수행 (패턴 분석 결과: 특이 패턴 없음)\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "일상 메모리 표현도 memory-leak 조회",
+    "quality_note": "88.8%인데 90% 이상일 때의 재시작을 수행하도록 표현하여 조건 해석 부정확",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "05",
+    "category": "디스크",
+    "question": "log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "disk-full"
+    ],
+    "screenshot": "05_디스크_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: log-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: log-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"disk-full\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: log-service, 장애유형: disk-full)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **log-service** 상태=degraded: 디스크 사용률 95% 이상임을 확인하고, 임계 수준(90% 이상)인지 판단합니다. 2) **log-service** 상태=degraded: 로그 파일, 임시 파일, 오래된 백업 등을 안전하게 삭제해 /var/log 디스크 공간을 즉시 확보합니다. 3) **log-service** 상태=degraded: 비정상적인 로그 생성 프로세스를 확인해 로그 레벨을 낮추거나 로테이션 주기를 단축합니다. 4) **log-service** 상태=degraded: 볼륨 확장 또는 추가 스토리지 연결로 임시 조치를 수행합니다. 5) **log-service** 상태=degraded: 로그 보존 정책과 디스크 사용률 알림 임계값(90%)을 재검토해 조기에 감지되도록 조정합니다.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "disk-full 조회",
+    "quality_note": "답변의 수치/조치 타당성 전부를 자동 검증한 것은 아님",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "06",
+    "category": "네트워크",
+    "question": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "network-timeout"
+    ],
+    "screenshot": "06_네트워크_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.\n- generic: \"⏳ 누락된 조사 대상 보완: payments-service\"\n- generic: \"⏳ 계획 수립: 할 일 3가지 (시스템: gateway-service, payments-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: gateway-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: payments-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"network-timeout, cpu-spike\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: gateway-service, 장애유형: network-timeout)\"\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **문제 요약** - **gateway-service**에서 **payments-service**로의 요청이 타임아웃(504) 발생. - **payments-service** CPU 사용률 88.4% (임계치 80% 초과), 메모리 53.7% 사용. - **network packet loss 3%** 및 **payments-service-3 인스턴스 응답 지연** 알림 발생. 2) **원인 분석** - **payments-service** CPU 과부하 (91% 초과)로 인해 요청 처리 지연. - 네트워크 패킷 손실 3%로 인한 **상대방 서버 응답 지연** 또는 **패킷 손실** 가능성. - **gateway-service**의 upstream timeout은 **payments-service**의 응답 지연 또는 네트워크 문제로 인한 것으로 추정. 3) **대응 절차** 1) **payments-service** CPU 급증 대응 절차 실행: - **runbook 3단계**: CPU 90% 초과 시 해당 인스턴스를 오토스케일링 그룹에서 추가하여 부하 분산 (현재 CPU 88.4% → 90% 초과로 판단). - **runbook 4단계**: 배포 후 CPU 급증이 발생했는지 확인. 최근 배포 여부 확인 필요. 2) **네트워크 문제 점검**: - **runbook 2단계**: 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 여부 확인. - **패킷 손실 3%** 대응: 라우팅 경로 변경 또는 네트워크 장애 점검. 3) **타임아웃 임계값 조정**: - **gateway-service** runbook 4단계: 타임아웃 임계값 임시 상향 (현재 504 타임아웃 발생 시, 정상 응답도 실패로 처리될 수 있음). 4) **모니터링 재검토**: - **runbook 5단계**: 정상화 후 네트워크 경로 기록 및 헬스체크 주기, 재시도 정책 재검토. - **payments-service** 프로파일링 수행: 핫스팟 코드 식별 및 최적화 작업 등록.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "gateway와 payments 모두 조사, network-timeout 및 cpu-spike 각각 조회",
+    "quality_note": "답변 정확성 실패: 88.4%를 90% 초과라고 판단. gateway 자체 상태/수치 요약도 부족",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "07",
+    "category": "응답 지연",
+    "question": "auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.",
+    "expected_runbooks": [
+      "high-latency"
+    ],
+    "screenshot": "07_응답 지연_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.\n- generic: \"⏳ 계획 수립: 할 일 2가지 (시스템: auth-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: auth-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"high-latency\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: auth-service, 장애유형: high-latency)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **auth-service** 상태=degraded, CPU 84.1%, 메모리 64.0%, 알림 2건 ['p95 latency 2.4s (threshold 1.0s)', 'connection pool 92% used'] 2) **대응 절차**: 1) get_monitoring_status로 p95 지연시간(2.4s)과 커넥션 풀 사용률(92%) 확인 2) 커넥션 풀 사용률 90% 초과 → 풀 크기 확장 또는 느린 쿼리/외부 호출 타임아웃 적용 3) 5분 내 p95 1.0s 미만으로 회복되지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽 분산 3) **매뉴얼 대응**: runbook의 1~5단계 수행 후, 느린 쿼리 로그 분석 및 후속 최적화 티켓 등록 필수.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "high-latency 조회",
+    "quality_note": "실제 상태가 아닌 샘플 데이터 기준",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "08",
+    "category": "여러 시스템",
+    "question": "payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.",
+    "expected_runbooks": [
+      "cpu-spike",
+      "memory-leak"
+    ],
+    "screenshot": "08_여러 시스템_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.\n- generic: \"⏳ 누락된 조사 대상 보완: cache-service\"\n- generic: \"⏳ 계획 수립: 할 일 3가지 (시스템: payments-service, cache-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: payments-service)\"\n- generic: \"⏳ 모니터링 지표 확인 (시스템: cache-service)\"\n- generic: ⏳ 정보 부족 → 장애유형 \"cpu-spike, memory-leak\"로 추가 조사\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)\"\n- generic: \"⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)\"\n- generic: ⏳ 답변 초안 작성 (시도 1)\n- generic: ⏳ 검수 통과\n- generic: ⏳ 최종 답변 완성\n- generic: \"1) **payments-service** - 상태: degraded - CPU: 89.4%, 메모리: 54.2% - 알림: ['CPU 91% (threshold 80%)', 'payments-service-3 instance responding slow'] - 대응 매뉴얼: 1. get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다. 2. 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. 3. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 4. 급증이 특정 배포 직후 시작됐다면 직전 배포를 롤백하고 원인 분석은 별도로 진행한다. 5. 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드를 식별해 최적화 작업을 등록한다. 2) **cache-service** - 상태: degraded - CPU: 43.8%, 메모리: 89.9% - 알림: ['memory usage climbing steadily over 6h', 'heap near limit'] - 대응 매뉴얼: 1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다. 2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다. 5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다. 3) **패턴 분석** - 특이 패턴 없음.\"\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "누락된 cache 자동 추가, 두 지표와 두 매뉴얼, 두 시스템 답변 확보",
+    "quality_note": "패턴 분석의 특이 패턴 없음이 원인 확정을 뜻하지 않음",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "09",
+    "category": "미등록 시스템",
+    "question": "billing-service 응답이 느려요. 원인 확인해주세요.",
+    "expected_runbooks": [],
+    "screenshot": "09_미등록 시스템_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: billing-service 응답이 느려요. 원인 확인해주세요.\n- generic: ⏳ 미등록 시스템 → 이름 확인 필요\n- generic: ⏳ 최종 답변 완성\n- generic: \"등록되지 않은 시스템: billing-service. 다른 시스템으로 대체 조회하지 않았습니다. 등록된 시스템: auth-service, cache-service, gateway-service, log-service, payments-service, web-01. 정확한 시스템 이름을 포함해 다시 질문해 주세요.\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "billing 미등록 안내, auth 대체 조사 과정 없음",
+    "quality_note": "등록 시스템 목록에 auth가 포함되는 것은 대체 조회 증거가 아님",
+    "artifact_code_version": "f3836e2"
+  },
+  {
+    "id": "10",
+    "category": "일반 대화",
+    "question": "안녕, 너는 누구야?",
+    "expected_runbooks": [],
+    "screenshot": "10_일반 대화_완료.jpg",
+    "completed": true,
+    "snapshot": "- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue\n- generic: 안녕, 너는 누구야?\n- generic: ⏳ 최종 답변 완성\n- generic: 안녕하세요! 저는 빠르게 비서입니다.\n- generic \"🔍 LLM에 전달된 최종 프롬프트 보기\"\n- 'textbox \"예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요\"'\n- button \"보내기\"",
+    "functional_result": "통과",
+    "observation": "조사 과정 없이 일반 대화 완료",
+    "quality_note": "한국어 표현이 다소 어색함",
+    "artifact_code_version": "f3836e2"
+  }
+]

@@ -1,0 +1,13 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: log-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: log-service)"
+- generic: ⏳ 정보 부족 → 장애유형 "disk-full"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: log-service, 장애유형: disk-full)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **log-service** 상태=degraded: 디스크 사용률 95% 이상임을 확인하고, 임계 수준(90% 이상)인지 판단합니다. 2) **log-service** 상태=degraded: 로그 파일, 임시 파일, 오래된 백업 등을 안전하게 삭제해 /var/log 디스크 공간을 즉시 확보합니다. 3) **log-service** 상태=degraded: 비정상적인 로그 생성 프로세스를 확인해 로그 레벨을 낮추거나 로테이션 주기를 단축합니다. 4) **log-service** 상태=degraded: 볼륨 확장 또는 추가 스토리지 연결로 임시 조치를 수행합니다. 5) **log-service** 상태=degraded: 로그 보존 정책과 디스크 사용률 알림 임계값(90%)을 재검토해 조기에 감지되도록 조정합니다."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

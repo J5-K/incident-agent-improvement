@@ -1,0 +1,13 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: cache-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: cache-service)"
+- generic: ⏳ 정보 부족 → 장애유형 "memory-leak"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **cache-service** 상태=degraded, 메모리 88.3% 사용 중. **Runbook** 1단계: 메모리 사용률 추세 확인(6시간 이상 꾸준히 증가 중). 2) **cache-service** 메모리 88.3% 사용, 알림 'heap near limit' 발생. **Runbook** 2단계: OOM 직전(90% 이상)이면 즉시 재시작(임시 조치 기록). 3) **cache-service** 힙 덤프 분석 필요. **Runbook** 3단계: 힙 덤프 또는 프로파일링 도구로 누수 원인(예: 무제한 캐시 증가, 커넥션 미반환 등) 확인."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

@@ -1,0 +1,13 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: auth-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: auth-service)"
+- generic: ⏳ 정보 부족 → 장애유형 "high-latency"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: auth-service, 장애유형: high-latency)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **auth-service** 상태=degraded, CPU 84.1%, 메모리 64.0%, 알림 2건 ['p95 latency 2.4s (threshold 1.0s)', 'connection pool 92% used'] 2) **대응 절차**: 1) get_monitoring_status로 p95 지연시간(2.4s)과 커넥션 풀 사용률(92%) 확인 2) 커넥션 풀 사용률 90% 초과 → 풀 크기 확장 또는 느린 쿼리/외부 호출 타임아웃 적용 3) 5분 내 p95 1.0s 미만으로 회복되지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽 분산 3) **매뉴얼 대응**: runbook의 1~5단계 수행 후, 느린 쿼리 로그 분석 및 후속 최적화 티켓 등록 필수."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

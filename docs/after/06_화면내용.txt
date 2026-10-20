@@ -1,0 +1,16 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.
+- generic: "⏳ 누락된 조사 대상 보완: payments-service"
+- generic: "⏳ 계획 수립: 할 일 3가지 (시스템: gateway-service, payments-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: gateway-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: payments-service)"
+- generic: ⏳ 정보 부족 → 장애유형 "network-timeout, cpu-spike"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: gateway-service, 장애유형: network-timeout)"
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **문제 요약** - **gateway-service**에서 **payments-service**로의 요청이 타임아웃(504) 발생. - **payments-service** CPU 사용률 88.4% (임계치 80% 초과), 메모리 53.7% 사용. - **network packet loss 3%** 및 **payments-service-3 인스턴스 응답 지연** 알림 발생. 2) **원인 분석** - **payments-service** CPU 과부하 (91% 초과)로 인해 요청 처리 지연. - 네트워크 패킷 손실 3%로 인한 **상대방 서버 응답 지연** 또는 **패킷 손실** 가능성. - **gateway-service**의 upstream timeout은 **payments-service**의 응답 지연 또는 네트워크 문제로 인한 것으로 추정. 3) **대응 절차** 1) **payments-service** CPU 급증 대응 절차 실행: - **runbook 3단계**: CPU 90% 초과 시 해당 인스턴스를 오토스케일링 그룹에서 추가하여 부하 분산 (현재 CPU 88.4% → 90% 초과로 판단). - **runbook 4단계**: 배포 후 CPU 급증이 발생했는지 확인. 최근 배포 여부 확인 필요. 2) **네트워크 문제 점검**: - **runbook 2단계**: 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 여부 확인. - **패킷 손실 3%** 대응: 라우팅 경로 변경 또는 네트워크 장애 점검. 3) **타임아웃 임계값 조정**: - **gateway-service** runbook 4단계: 타임아웃 임계값 임시 상향 (현재 504 타임아웃 발생 시, 정상 응답도 실패로 처리될 수 있음). 4) **모니터링 재검토**: - **runbook 5단계**: 정상화 후 네트워크 경로 기록 및 헬스체크 주기, 재시도 정책 재검토. - **payments-service** 프로파일링 수행: 핫스팟 코드 식별 및 최적화 작업 등록."
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

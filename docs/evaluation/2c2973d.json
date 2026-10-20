@@ -1,0 +1,839 @@
+{
+  "ref": "2c2973d",
+  "commit": "2c2973deffe6b2b8f81613c19fd45a9b1454ec94",
+  "fixture_sha256": "f10fdab1bb27b2b7d3cfc3f143e6cf5c3d2caa3bd34fb812717c0d7cccb92de8",
+  "mode": "offline deterministic fake/mock graph regression; not live LLM performance",
+  "summary": {
+    "case_count": 15,
+    "completion_rate": 0.9333,
+    "route_match_rate": 0.4286,
+    "exact_target_match_rate": 0.1429,
+    "per_system_runbook_match_rate": 0.0,
+    "structured_numeric_fact_match_rate": null,
+    "structured_numeric_fact_case_count": 0,
+    "unsafe_injected_draft_published_rate": 1.0,
+    "failure_case_error_observed_rate": 1.0,
+    "elapsed_seconds_total": 3.988
+  },
+  "cases": [
+    {
+      "id": "01",
+      "category": "직접 표현",
+      "question": "payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": true,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "runbook_reads": [
+        "cpu-spike"
+      ],
+      "runbooks_by_system": {
+        "null": "cpu-spike"
+      },
+      "elapsed_seconds": 0.7146,
+      "validation_passed": null,
+      "validation_attempts": 2,
+      "error": null,
+      "reply": "'payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 88.4% (알림 2건) · web-01 상태=healthy, CPU 34.0% (알림 0건) 2) 표준 절차: 'Runbook: CPU 급증 대응 절차'에 따라 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요.",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "incident"
+        },
+        {
+          "type": "PlanCreated",
+          "task_count": 3,
+          "targets": [
+            "payments-service",
+            "web-01"
+          ]
+        },
+        {
+          "type": "GateApplied",
+          "removed_analysis_tasks": 1
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-0",
+          "source": "monitoring",
+          "target": "payments-service",
+          "retries": 0
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-1",
+          "source": "monitoring",
+          "target": "web-01",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 0,
+          "is_sufficient": false,
+          "gap_task": "task-gap-runbook",
+          "target": "cpu-spike"
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-gap-runbook",
+          "source": "runbook",
+          "target": "cpu-spike",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 1,
+          "is_sufficient": true
+        },
+        {
+          "type": "AnalysisSkipped",
+          "reason": "analysis task 0개"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 1,
+          "length": 10
+        },
+        {
+          "type": "Validation",
+          "attempt": 1,
+          "verdict": "불합격"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 2,
+          "length": 339
+        },
+        {
+          "type": "Validation",
+          "attempt": 2,
+          "verdict": "합격"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "incident-v2"
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "category": "다른 표현",
+      "question": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0035,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "category": "메모리",
+      "question": "cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.003,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "category": "다른 표현",
+      "question": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0024,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "category": "디스크",
+      "question": "log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0024,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "category": "네트워크",
+      "question": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0029,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "07",
+      "category": "응답 지연",
+      "question": "auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0021,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "category": "여러 시스템",
+      "question": "payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0022,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "category": "미등록 시스템",
+      "question": "billing-service 응답이 느려요. 원인 확인해주세요.",
+      "completed": true,
+      "route_match": false,
+      "target_match": true,
+      "book_match": null,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0019,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "category": "일반 대화",
+      "question": "안녕, 너는 누구야?",
+      "completed": true,
+      "route_match": true,
+      "target_match": true,
+      "book_match": null,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.0018,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": null,
+      "reply": "안녕하세요! 무엇을 도와드릴까요?",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "chat"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "chat-direct"
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "category": "CPU 경계값",
+      "question": "payments-service CPU 급증",
+      "completed": true,
+      "route_match": true,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "runbook_reads": [
+        "cpu-spike"
+      ],
+      "runbooks_by_system": {
+        "null": "cpu-spike"
+      },
+      "elapsed_seconds": 0.7169,
+      "validation_passed": null,
+      "validation_attempts": 2,
+      "error": null,
+      "reply": "'payments-service CPU 급증' 진단 결과: 1) 모니터링: payments-service 상태=degraded, CPU 90% (알림 2건) · web-01 상태=healthy, CPU 34.0% (알림 0건) 2) 표준 절차: 'Runbook: CPU 급증 대응 절차'에 따라 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요.",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "incident"
+        },
+        {
+          "type": "PlanCreated",
+          "task_count": 3,
+          "targets": [
+            "payments-service",
+            "web-01"
+          ]
+        },
+        {
+          "type": "GateApplied",
+          "removed_analysis_tasks": 1
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-0",
+          "source": "monitoring",
+          "target": "payments-service",
+          "retries": 0
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-1",
+          "source": "monitoring",
+          "target": "web-01",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 0,
+          "is_sufficient": false,
+          "gap_task": "task-gap-runbook",
+          "target": "cpu-spike"
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-gap-runbook",
+          "source": "runbook",
+          "target": "cpu-spike",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 1,
+          "is_sufficient": true
+        },
+        {
+          "type": "AnalysisSkipped",
+          "reason": "analysis task 0개"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 1,
+          "length": 10
+        },
+        {
+          "type": "Validation",
+          "attempt": 1,
+          "verdict": "불합격"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 2,
+          "length": 310
+        },
+        {
+          "type": "Validation",
+          "attempt": 2,
+          "verdict": "합격"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "incident-v2"
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "category": "메모리 경계값",
+      "question": "cache-service 메모리 급증",
+      "completed": true,
+      "route_match": true,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": null,
+      "called_targets": [
+        "cache-service",
+        "web-01"
+      ],
+      "runbook_reads": [
+        "memory-leak"
+      ],
+      "runbooks_by_system": {
+        "null": "memory-leak"
+      },
+      "elapsed_seconds": 0.7187,
+      "validation_passed": null,
+      "validation_attempts": 2,
+      "error": null,
+      "reply": "'cache-service 메모리 급증' 진단 결과: 1) 모니터링: cache-service 상태=degraded, CPU 42.0% (알림 2건) · web-01 상태=healthy, CPU 34.0% (알림 0건) 2) 표준 절차: 'Runbook: 메모리 누수(Memory Leak) 대응 절차'에 따라 OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다. 3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요.",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "incident"
+        },
+        {
+          "type": "PlanCreated",
+          "task_count": 3,
+          "targets": [
+            "cache-service",
+            "web-01"
+          ]
+        },
+        {
+          "type": "GateApplied",
+          "removed_analysis_tasks": 1
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-0",
+          "source": "monitoring",
+          "target": "cache-service",
+          "retries": 0
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-1",
+          "source": "monitoring",
+          "target": "web-01",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 0,
+          "is_sufficient": false,
+          "gap_task": "task-gap-runbook",
+          "target": "memory-leak"
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-gap-runbook",
+          "source": "runbook",
+          "target": "memory-leak",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 1,
+          "is_sufficient": true
+        },
+        {
+          "type": "AnalysisSkipped",
+          "reason": "analysis task 0개"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 1,
+          "length": 10
+        },
+        {
+          "type": "Validation",
+          "attempt": 1,
+          "verdict": "불합격"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 2,
+          "length": 320
+        },
+        {
+          "type": "Validation",
+          "attempt": 2,
+          "verdict": "합격"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "incident-v2"
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "category": "오류 초안 주입",
+      "question": "payments-service CPU 급증",
+      "completed": true,
+      "route_match": true,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": true,
+      "expected_failure_observed": null,
+      "called_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "runbook_reads": [
+        "cpu-spike"
+      ],
+      "runbooks_by_system": {
+        "null": "cpu-spike"
+      },
+      "elapsed_seconds": 0.7158,
+      "validation_passed": null,
+      "validation_attempts": 1,
+      "error": null,
+      "reply": "1) payments-service CPU 88.4%를 90% 초과로 판단합니다. 즉시 인스턴스를 증설하세요.",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "incident"
+        },
+        {
+          "type": "PlanCreated",
+          "task_count": 3,
+          "targets": [
+            "payments-service",
+            "web-01"
+          ]
+        },
+        {
+          "type": "GateApplied",
+          "removed_analysis_tasks": 1
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-0",
+          "source": "monitoring",
+          "target": "payments-service",
+          "retries": 0
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-1",
+          "source": "monitoring",
+          "target": "web-01",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 0,
+          "is_sufficient": false,
+          "gap_task": "task-gap-runbook",
+          "target": "cpu-spike"
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-gap-runbook",
+          "source": "runbook",
+          "target": "cpu-spike",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 1,
+          "is_sufficient": true
+        },
+        {
+          "type": "AnalysisSkipped",
+          "reason": "analysis task 0개"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 1,
+          "length": 61
+        },
+        {
+          "type": "Validation",
+          "attempt": 1,
+          "verdict": "합격"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "incident-v2"
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "category": "오류 초안 주입",
+      "question": "cache-service 메모리 급증",
+      "completed": true,
+      "route_match": true,
+      "target_match": false,
+      "book_match": false,
+      "numeric_match": null,
+      "unsafe_published": true,
+      "expected_failure_observed": null,
+      "called_targets": [
+        "cache-service",
+        "web-01"
+      ],
+      "runbook_reads": [
+        "memory-leak"
+      ],
+      "runbooks_by_system": {
+        "null": "memory-leak"
+      },
+      "elapsed_seconds": 0.7147,
+      "validation_passed": null,
+      "validation_attempts": 1,
+      "error": null,
+      "reply": "1) cache-service 메모리 88.8%이므로 90% 이상 조건 충족입니다. 즉시 프로세스를 재시작하세요.",
+      "report": null,
+      "events": [
+        {
+          "type": "RouteDecided",
+          "route": "incident"
+        },
+        {
+          "type": "PlanCreated",
+          "task_count": 3,
+          "targets": [
+            "cache-service",
+            "web-01"
+          ]
+        },
+        {
+          "type": "GateApplied",
+          "removed_analysis_tasks": 1
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-0",
+          "source": "monitoring",
+          "target": "cache-service",
+          "retries": 0
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-1",
+          "source": "monitoring",
+          "target": "web-01",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 0,
+          "is_sufficient": false,
+          "gap_task": "task-gap-runbook",
+          "target": "memory-leak"
+        },
+        {
+          "type": "TaskCompleted",
+          "id": "task-gap-runbook",
+          "source": "runbook",
+          "target": "memory-leak",
+          "retries": 0
+        },
+        {
+          "type": "ReplanCheck",
+          "round": 1,
+          "is_sufficient": true
+        },
+        {
+          "type": "AnalysisSkipped",
+          "reason": "analysis task 0개"
+        },
+        {
+          "type": "DraftWritten",
+          "attempt": 1,
+          "length": 63
+        },
+        {
+          "type": "Validation",
+          "attempt": 1,
+          "verdict": "합격"
+        },
+        {
+          "type": "Finalize",
+          "pipeline": "incident-v2"
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "category": "도구 실패",
+      "question": "payments-service CPU 급증",
+      "completed": false,
+      "route_match": null,
+      "target_match": null,
+      "book_match": null,
+      "numeric_match": null,
+      "unsafe_published": null,
+      "expected_failure_observed": true,
+      "called_targets": [
+        "payments-service",
+        "web-01"
+      ],
+      "runbook_reads": [],
+      "runbooks_by_system": {},
+      "elapsed_seconds": 0.3854,
+      "validation_passed": null,
+      "validation_attempts": 0,
+      "error": "RuntimeError: fixture monitoring unavailable",
+      "reply": null,
+      "report": null,
+      "events": []
+    }
+  ]
+}

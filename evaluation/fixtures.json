@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "monitoring": {
+    "auth-service": {
+      "status": "degraded",
+      "alerts": [
+        "p95 latency 2.4s (threshold 1.0s)",
+        "connection pool 92% used"
+      ],
+      "system_name": "auth-service",
+      "cpu_percent": 78.0,
+      "memory_percent": 61.0,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    },
+    "web-01": {
+      "status": "healthy",
+      "alerts": [],
+      "system_name": "web-01",
+      "cpu_percent": 34.0,
+      "memory_percent": 48.0,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    },
+    "payments-service": {
+      "status": "degraded",
+      "alerts": [
+        "CPU 91% (threshold 80%)",
+        "payments-service-3 instance responding slow"
+      ],
+      "system_name": "payments-service",
+      "cpu_percent": 88.4,
+      "memory_percent": 55.0,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    },
+    "cache-service": {
+      "status": "degraded",
+      "alerts": [
+        "memory usage climbing steadily over 6h",
+        "heap near limit"
+      ],
+      "system_name": "cache-service",
+      "cpu_percent": 42.0,
+      "memory_percent": 88.8,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    },
+    "gateway-service": {
+      "status": "degraded",
+      "alerts": [
+        "upstream timeout to payments-service (504)",
+        "network packet loss 3%"
+      ],
+      "system_name": "gateway-service",
+      "cpu_percent": 30.0,
+      "memory_percent": 45.0,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    },
+    "log-service": {
+      "status": "degraded",
+      "alerts": [
+        "disk usage 95% on /var/log",
+        "disk space low"
+      ],
+      "system_name": "log-service",
+      "cpu_percent": 20.0,
+      "memory_percent": 35.0,
+      "last_checked": "2026-10-20T00:00:00+00:00"
+    }
+  },
+  "runbooks": {
+    "network-timeout": "# Runbook: 네트워크 타임아웃 대응 절차\n\n1. get_monitoring_status로 어떤 시스템 간 호출에서 타임아웃이 발생하는지 확인한다.\n2. DNS 해석 실패, 방화벽/보안그룹 변경, 로드밸런서 헬스체크 실패 중 최근 변경 사항이 있었는지 점검한다.\n3. 특정 리전/가용영역에서만 발생하면 해당 구간을 우회하는 라우팅으로 임시 전환한다.\n4. 타임아웃 값이 너무 짧아 정상 응답도 실패로 처리되는 경우라면 임계값을 임시 상향해 2차 피해를 줄인다.\n5. 정상화 후 네트워크 경로 기록을 남기고, 재발 방지를 위해 헬스체크 주기와 재시도 정책을 재검토한다.\n",
+    "cpu-spike": "# Runbook: CPU 급증 대응 절차\n\n1. get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.\n2. 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.\n3. CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n4. 급증이 특정 배포 직후 시작됐다면 직전 배포를 롤백하고 원인 분석은 별도로 진행한다.\n5. 정상화 후 프로파일링 결과를 바탕으로 핫스팟 코드를 식별해 최적화 작업을 등록한다.\n",
+    "high-latency": "# Runbook: 응답 지연(High Latency) 대응 절차\n\n1. get_monitoring_status로 p95 지연시간과 커넥션 풀 사용률을 확인한다.\n2. 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다.\n3. 지연이 특정 리전/인스턴스에 몰려 있으면 해당 인스턴스를 로드밸런서에서 일시 제외한다.\n4. 5분 내 p95가 임계치(1.0s) 아래로 내려오지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽을 분산한다.\n5. 정상화 후 느린 쿼리 로그를 분석해 근본 원인을 문서화하고 후속 최적화 티켓을 등록한다.\n",
+    "disk-full": "# Runbook: 디스크 용량 부족 대응 절차\n\n1. get_monitoring_status와 서버 디스크 사용률을 확인해 임계 수준(90% 이상)인지 판단한다.\n2. 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n3. 특정 프로세스가 비정상적으로 로그를 쌓고 있다면 로그 레벨을 낮추거나 로테이션 주기를 단축한다.\n4. 임시 조치로도 부족하면 볼륨을 확장하거나 추가 스토리지를 연결한다.\n5. 정상화 후 로그 보존 정책과 디스크 사용률 알림 임계값을 재검토해 조기에 감지되도록 조정한다.\n",
+    "db-down": "# Runbook: DB Down 대응 절차\n\n1. 모니터링 알람으로 장애를 즉시 인지한다 (get_monitoring_status로 현재 상태 확인).\n2. 커넥션 풀/리플리케이션 상태를 점검하고 필요 시 failover 노드로 전환한다.\n3. 서비스 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화한다.\n",
+    "memory-leak": "# Runbook: 메모리 누수(Memory Leak) 대응 절차\n\n1. get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n2. OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n3. 힙 덤프 또는 프로파일링 도구로 어떤 객체가 계속 쌓이는지 확인한다.\n4. 캐시 무제한 증가, 커넥션 미반환, 이벤트 리스너 중복 등록 같은 패턴이 최근 배포에 있었는지 점검한다.\n5. 원인이 된 배포가 있으면 롤백하고, 컨테이너 메모리 상한선을 재확인해 재발 시 더 빨리 감지되도록 조정한다.\n"
+  },
+  "cases": [
+    {
+      "id": "01",
+      "category": "직접 표현",
+      "question": "payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "expected_targets": [
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike"
+      }
+    },
+    {
+      "id": "02",
+      "category": "다른 표현",
+      "question": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "expected_targets": [
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike"
+      }
+    },
+    {
+      "id": "03",
+      "category": "메모리",
+      "question": "cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "expected_targets": [
+        "cache-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "cache-service": "memory-leak"
+      }
+    },
+    {
+      "id": "04",
+      "category": "다른 표현",
+      "question": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "expected_targets": [
+        "cache-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "cache-service": "memory-leak"
+      }
+    },
+    {
+      "id": "05",
+      "category": "디스크",
+      "question": "log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "disk-full"
+      ],
+      "expected_targets": [
+        "log-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "log-service": "disk-full"
+      }
+    },
+    {
+      "id": "06",
+      "category": "네트워크",
+      "question": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "network-timeout"
+      ],
+      "expected_targets": [
+        "gateway-service",
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "gateway-service": "network-timeout",
+        "payments-service": "cpu-spike"
+      }
+    },
+    {
+      "id": "07",
+      "category": "응답 지연",
+      "question": "auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "high-latency"
+      ],
+      "expected_targets": [
+        "auth-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "auth-service": "high-latency"
+      }
+    },
+    {
+      "id": "08",
+      "category": "여러 시스템",
+      "question": "payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "expected_targets": [
+        "payments-service",
+        "cache-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike",
+        "cache-service": "memory-leak"
+      }
+    },
+    {
+      "id": "09",
+      "category": "미등록 시스템",
+      "question": "billing-service 응답이 느려요. 원인 확인해주세요.",
+      "expected_runbooks": [],
+      "expected_targets": [],
+      "expected_route": "clarification",
+      "expected_books": {}
+    },
+    {
+      "id": "10",
+      "category": "일반 대화",
+      "question": "안녕, 너는 누구야?",
+      "expected_runbooks": [],
+      "expected_targets": [],
+      "expected_route": "chat",
+      "expected_books": {}
+    },
+    {
+      "id": "11",
+      "category": "CPU 경계값",
+      "question": "payments-service CPU 급증",
+      "expected_targets": [
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike"
+      },
+      "overrides": {
+        "payments-service": {
+          "cpu_percent": 90
+        }
+      }
+    },
+    {
+      "id": "12",
+      "category": "메모리 경계값",
+      "question": "cache-service 메모리 급증",
+      "expected_targets": [
+        "cache-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "cache-service": "memory-leak"
+      },
+      "overrides": {
+        "cache-service": {
+          "memory_percent": 90
+        }
+      }
+    },
+    {
+      "id": "13",
+      "category": "오류 초안 주입",
+      "question": "payments-service CPU 급증",
+      "expected_targets": [
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike"
+      },
+      "injected_draft": "1) payments-service CPU 88.4%를 90% 초과로 판단합니다. 즉시 인스턴스를 증설하세요.",
+      "unsafe_marker": "90% 초과로 판단"
+    },
+    {
+      "id": "14",
+      "category": "오류 초안 주입",
+      "question": "cache-service 메모리 급증",
+      "expected_targets": [
+        "cache-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "cache-service": "memory-leak"
+      },
+      "injected_draft": "1) cache-service 메모리 88.8%이므로 90% 이상 조건 충족입니다. 즉시 프로세스를 재시작하세요.",
+      "unsafe_marker": "90% 이상 조건 충족"
+    },
+    {
+      "id": "15",
+      "category": "도구 실패",
+      "question": "payments-service CPU 급증",
+      "expected_targets": [
+        "payments-service"
+      ],
+      "expected_route": "incident",
+      "expected_books": {
+        "payments-service": "cpu-spike"
+      },
+      "fail_target": "payments-service"
+    }
+  ]
+}

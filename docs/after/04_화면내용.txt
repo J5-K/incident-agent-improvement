@@ -1,0 +1,13 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.
+- generic: "⏳ 계획 수립: 할 일 2가지 (시스템: cache-service)"
+- generic: "⏳ 모니터링 지표 확인 (시스템: cache-service)"
+- generic: ⏳ 정보 부족 → 장애유형 "memory-leak"로 추가 조사
+- generic: "⏳ 대응 매뉴얼(runbook) 조회 (시스템: cache-service, 장애유형: memory-leak)"
+- generic: ⏳ 답변 초안 작성 (시도 1)
+- generic: ⏳ 검수 통과
+- generic: ⏳ 최종 답변 완성
+- generic: "1) **cache-service** 상태=degraded, 메모리 88.8% 사용 중 (알림: 'memory usage climbing steadily over 6h', 'heap near limit') → Runbook 1단계(메모리 사용률 추세 확인) 수행 2) 메모리 사용률 88.8%로 OOM 직전(90% 이상)에 근접 → Runbook 2단계(프로세스 재시작) 수행 (재시작은 임시 조치임을 기록) 3) 힙 덤프 또는 프로파일링 도구로 메모리 누수 원인(예: 캐시 무제한 증가, 커넥션 미반환 등) 분석 → Runbook 3단계 수행 (패턴 분석 결과: 특이 패턴 없음)"
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

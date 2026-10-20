@@ -1,60 +1,56 @@
 # Incident Agent Improvement
 
-AI 서비스 Mini-Project: 운영 장애 에이전트의 질문 분류 및 조사 대상 정확도 개선.
+AI 서비스 Mini-Project — 운영 장애 에이전트의 조사 대상 정확도와 수치·조치 조건의 근거 일치 개선.
 
-## 현재 상태
+## 직접 구현한 개선
 
-개선 전 기준 커밋은 `2c2973d`이다. 현재는 **개선 1: 미등록 시스템 임의 대체 방지**, **개선 2: 복수 시스템·매뉴얼 누락 방지**를 v2에 반영했다. **개선 3: 일상적인 장애 표현의 chat 오분류 보완**도 반영했다. 교육용 제공 코드를 바탕으로 진행하며 원저작권·이용 조건을 따른다.
-
-## 개선 목표
-
-1. 다양한 장애 표현을 일반 대화로 오분류하는 문제 개선.
-2. 복수 시스템 질문에서 조사 대상이 누락되는 문제 개선.
-3. 미등록 시스템을 auth-service로 임의 대체하는 문제 개선.
-
-## 구조
-
-Vue 채팅(:8600) → FastAPI(:8100) → LangGraph → MCP 서버(Tool / Resource / Prompt). 대화 이력은 SQLite에 저장하고 실행 과정은 LangSmith로 확인한다. 모니터링은 실제 운영 시스템이 아닌 샘플 데이터이며 수치에 무작위 변동이 있다.
+1. **조사 대상 확인**: 미등록 이름은 조회 없이 되묻고, incident로 분류된 대상 미지정 요청도 확인한다.
+2. **복수 시스템 누락 방지**: 명시된 모든 시스템을 계획에 보완하고 시스템별 지표·매뉴얼을 연결한다.
+3. **질문 분류 보완**: 등록된 시스템과 일상적 증상 표현이 있는 chat 오분류를 incident로 보정한다.
+4. **수치·조건 검증**: AI가 수치를 자유 생성하지 않고 출처·단계·조건 코드를 선택한다. Python이 CPU `>90` / 메모리 `>=90`을 계산한다. CPU 지속 여부 등 미수집 조건은 보류한다.
+5. **근거 보고서**: 사실 / 추정 / 조건부 조치 / 출처를 구분한다. 3회 반려 후 강제 통과 대신 사실만 제공한다.
+6. **재현 가능한 자동 평가**: 고정 질문·지표·매뉴얼 15개 시나리오로 Git 버전별 그래프를 비교한다.
 
 ## 실행
 
-Python과 Ollama가 설치된 환경에서 다음 순서로 실행한다. API 키는 `.env.example`을 `.env`로 복사한 뒤 본인 값으로 설정한다.
+기존 환경이 준비됐다면 백엔드·프론트엔드만 실행한다. 처음 설치할 때는 아래 순서를 따른다.
 
 ```bash
 bash sh/setup_venv.sh
 cp .env.example .env
+# .env는 본인 환경에 맞춰 설정
 bash sh/setup_ollama.sh
 bash sh/run_agent_ollma.sh
 ```
 
-다른 터미널에서 `bash sh/run_frontend.sh` 실행 후 http://localhost:8600 접속. 기존 환경이 준비됐다면 준비 단계는 생략한다. 시작 스크립트는 기존 포트 프로세스를 종료하거나 session.db를 초기화하므로 대화 보존이 필요하면 실행 전에 확인한다. OpenAI 모드는 유료 API 호출이다.
+다른 터미널: `bash sh/run_frontend.sh`, 화면: http://localhost:8600/.
+기존 실행 스크립트는 이전 포트 프로세스를 종료하고 session.db를 초기화한다. 상세 제공 코드 설명은 [원본 매뉴얼](doc/README.md)을 참고한다.
 
-상세 실행 설명: [기존 매뉴얼](doc/README.md).
+Vue(:8600) → FastAPI(:8100) → LangGraph v2 → MCP Tool/Resource/Prompt. 기본 골격·SSE·SQLite·백엔드 교체는 제공 코드의 기능이다. v1은 교육용 기존 흐름이며 이번 검증 강화를 적용하지 않았다.
 
-## 개선 전 평가
+## 테스트와 자동 평가
 
-[결과 요약](docs/baseline/결과요약.md) · [결과표](docs/baseline/테스트결과표.csv) · [질문 10개](docs/baseline/테스트질문10개.json) · [화면 기록](docs/baseline/화면기록.json). 캡처는 `docs/baseline/`에 번호별로 보관한다.
+```bash
+PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .venv/bin/python3 -m unittest discover -s tests -v
+PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .venv/bin/python3 evaluation/run.py --refs 2c2973d f3836e2 HEAD
+```
 
-10개 모두 최종 답변 캡처를 확보했다. 02는 일반 대화 오분류, 08은 cache-service 조사 누락, 09는 auth-service 임의 대체를 확인했다. 실행 완료를 정확성 합격으로 간주하지 않는다. 08·09는 사용자 교체 캡처 기준으로 갱신했고, 최신 기록의 수기 전사와 초기 자동 관찰을 구분했다.
+단위·그래프·보고서·평가 집계 테스트 **46개 통과**. 자동 평가는 실제 MCP/LLM 호출 없는 fake/mock 회귀 평가다. 실행 시간은 실제 모델 응답 성능이 아니다. `--refs WORKTREE`는 미커밋 코드 확인용이며 결과에 표시된다.
 
-모델: qwen3:0.6b / qwen3:8b. 응답 시간·비용의 정밀 비교는 아직 수행하지 않았다. 개선 후 동일 질문·모델로 재평가하고, 검색 자체 비교에는 고정 알림을 사용한다.
+[자동 평가 결과](docs/evaluation/README.md) · [최신 검증 요약](docs/최종검증_결과요약.md) · [수정 내역](docs/개선내역_1-3.md).
 
-## 향후 검증
+## 증거와 문서
 
-질문 분류 정확도, 조사 대상 누락률, 미등록 시스템 처리 결과를 개선 전후 비교한다. 관련 로직을 모듈로 분리하고 단위 테스트를 추가한다. 모델 판단과 코드 검증의 역할, 추가 지연 및 남는 한계를 설명한다.
+- `docs/before/` 및 `docs/baseline/`: 개선 전 원본 캡처 10개. 기준 커밋 `2c2973d`.
+- `docs/after/`: `f3836e2`의 1차 Vue 검증 10개와 당시 발견한 오류를 보존.
+- `docs/after/v2_grounded/`: 수치·조건 및 근거 보고서 개선 후 실모델 재검증 기록.
+- `docs/evaluation/`: 동일 fixture의 버전별 JSON·CSV·요약.
+- [대상 확인](docs/target-guard.md) · [복수 대상](docs/multi-target.md) · [분류](docs/routing.md) · [수치 조건](docs/condition-validation.md) · [근거 보고서](docs/grounded-report.md).
 
-## 저장소 제외 항목
+## 한계·절충
 
-API 키가 들어 있는 `.env`, 가상환경, 로컬 대화 DB, 캐시, 로그, macOS 메타데이터, 중복 원본 ZIP은 커밋하지 않는다. `.env.example`에는 실제 키를 넣지 않는다.
+모니터링은 교육용 샘플이며 무작위 수치와 고정 경고가 다를 수 있다. 검토한 자동 수치 정책은 CPU 증설과 메모리 재시작 두 개다. 원문 해시가 달라지거나 수치가 없으면 보류한다. 나머지 단계는 조건·운영자 확인이 필요하며 실제 조치는 실행하지 않는다.
 
-## 개선 1 검증
+원인 가설을 제한된 코드로 선택하므로 자유 서술의 폭은 줄어든다. 대신 수치·출처·조건을 코드가 보존한다. 이 검사는 원인 가설의 진실성을 증명하지 않는다. RAG, LLM-as-a-Judge, 부분 실패 응답, 비동기 LLM 전환은 구현 범위에 없다. 일부 질문은 fake 라우터가 놓치며 도구 실패 시 전체 요청이 실패하는 한계도 평가에 기록했다.
 
-[설계·한계·검증 방법](docs/target-guard.md). 미등록 이름은 LLM/MCP 호출 없이 확인 안내를 반환하고, 이름 없는 장애 요청도 대상을 되묻는다. 네트워크 없는 자동 테스트 13개 통과. 실제 Ollama/Vue 비교 캡처는 서버 재시작 후 별도로 수집해야 한다.
-
-## 개선 2 검증
-
-[복수 시스템 개선 설명](docs/multi-target.md). 모델 계획에서 누락한 조사 대상을 보완하고 시스템별 매뉴얼을 수집한다. 작성 모델에도 대상별 근거를 전달한다. 전체 자동 테스트 24개 통과. 실제 Ollama/Vue 비교는 서버 재시작 후 별도로 확인해야 한다.
-
-## 개선 3 검증
-
-[분류 보완과 최종 비교 절차](docs/routing.md). 등록 시스템과 증상 표현이 있는 chat 분류를 incident로 보정한다. 자동 테스트와 실제 Ollama/Vue 평가는 구분하며, 제출용 캡처는 최종 서버 재시작 후 수집한다.
+미검증 JSON 초안 토큰은 화면에 흘리지 않는다. 조사·검증 이벤트와 검증 후 최종 보고서를 SSE로 표시하며 일반 대화 스트리밍은 유지한다. `.env`·세션 DB·가상환경·캐시는 Git에서 제외한다. `.env.example`에는 실제 키를 넣지 않는다.
