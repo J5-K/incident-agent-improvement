@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import AsyncMock
 
-from agent.runbook_search import RunbookSearch, normalize, scoped_query
+from agent.runbook_search import RunbookSearch, normalize, scoped_query, system_search_query
 from agent.graph import build_graph
 from agent.evidence import validate_proposal
 import test_multi_target as helpers
@@ -69,6 +69,13 @@ class SearchTests(unittest.IsolatedAsyncioTestCase):
         for vector in [[0,0],[float("nan"),1],[True,1],[],[float("inf")]]:
             with self.subTest(vector=vector):
                 with self.assertRaises(ValueError):normalize(vector)
+
+    async def test_empty_system_clause_keeps_only_useful_alert(self):
+        text=system_search_query("payments-service와 cache-service 상태 확인", "payments-service",
+            ["payments-service","cache-service"], {"status":"degraded","alerts":["CPU 91% (threshold 80%)", "payments-service-3 instance responding slow"]})
+        self.assertNotIn("payments-service",text)
+        self.assertNotIn("degraded",text)
+        self.assertTrue(text.startswith("CPU"))
 
     async def test_multi_system_query_excludes_other_system_clause(self):
         q="payments-service CPU가 급증하고 cache-service 메모리가 늘어요"

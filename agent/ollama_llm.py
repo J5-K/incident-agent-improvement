@@ -99,6 +99,8 @@ class OllamaLLM:
             "stream": False,
             "options": {"temperature": 0.0},
         }
+        if self.model.startswith("qwen3"):
+            payload["think"] = False
         if schema is not None:
             payload["format"] = schema
         resp = httpx.post(OLLAMA_URL, json=payload, timeout=300.0)
@@ -122,6 +124,8 @@ class OllamaLLM:
             "stream": True,
             "options": {"temperature": 0.0},
         }
+        if self.model.startswith("qwen3"):
+            payload["think"] = False
         chunks: list[str] = []
         usage = {"model": self.name, "tokens": 0, "usd": 0.0}
         async with httpx.AsyncClient(timeout=300.0) as client:

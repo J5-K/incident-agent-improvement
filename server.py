@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
         cache_path=os.path.join(os.path.dirname(__file__), "data/.cache/runbooks-index.json"),
         min_score=float(os.environ.get("RUNBOOK_MIN_SCORE", "0.43")),
         score_margin=float(os.environ.get("RUNBOOK_SCORE_MARGIN", "0.08")),
-        top_k=int(os.environ.get("RUNBOOK_TOP_K", "3"))) if search_mode == "rag" else None
+        top_k=int(os.environ.get("RUNBOOK_TOP_K", "2"))) if search_mode == "rag" else None
     app.state.runbook_search_mode = search_mode
     deps = SupervisorDeps(
         fast_llm=fast_llm,

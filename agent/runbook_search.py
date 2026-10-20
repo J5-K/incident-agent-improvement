@@ -58,15 +58,21 @@ def scoped_query(query, name, targets):
 
 
 def system_search_query(query, name, targets, monitoring):
-    # Values without alerts are not evidence that an arbitrary incident occurred.
-    return ("질문: " + scoped_query(query, name, targets) + "\n"
-            + "상태: " + str(monitoring.get("status", "")) + "\n"
-            + "알림: " + "; ".join(monitoring.get("alerts", [])))
+    # System identifiers and empty connector clauses are not incident symptoms.
+    clause=scoped_query(query,name,targets)
+    names="|".join(re.escape(t) for t in sorted(targets,key=len,reverse=True))
+    if names:
+        clause=re.sub(names," ",clause,flags=re.I)
+    clause=re.sub(r"^\s*(?:와|과|에서|의|로)\s*", "", clause).strip()
+    alerts=[re.sub(r"[a-z][a-z0-9_-]*-service(?:-\d+)?", "", a, flags=re.I).strip()
+            for a in monitoring.get("alerts", [])]
+    return "\n".join(part for part in [clause, "; ".join(alerts)] if part)
+
 
 
 class RunbookSearch:
     def __init__(self, embedder=None, *, directory=None, cache_path=None,
-                 min_score=0.43, score_margin=0.08, top_k=3):
+                 min_score=0.43, score_margin=0.08, top_k=2):
         if not 0 <= min_score <= 1 or not 0 <= score_margin <= 1 or top_k < 1:
             raise ValueError("Invalid retrieval settings")
         self.embedder = embedder or OllamaEmbedder()

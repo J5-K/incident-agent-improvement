@@ -1,0 +1,537 @@
+[
+  {
+    "query": "payments-service와 cache-service 장애 상태를 각각 확인하고 대응 매뉴얼을 알려주세요.",
+    "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 92.0%, 메모리 55.5% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n- cache-service: 상태=degraded, CPU 45.5%, 메모리 90.7% [monitoring:cache-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): memory usage climbing steadily over 6h; heap near limit\n\n2) 원인 추정 — 확정 사실 아님\n- payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service]\n- cache-service: 메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다. [monitoring:cache-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- payments-service [runbook:payments-service:cpu-spike #3]: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 92.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류\n  참고 원문(즉시 실행 지시 아님): CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n- payments-service [runbook:payments-service:high-latency #4]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): 5분 내 p95가 임계치(1.0s) 아래로 내려오지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽을 분산한다.\n- cache-service [runbook:cache-service:memory-leak #2]: 수치 조건 충족 / 실행 승인 아님 / memory_percent 90.7% >= 90%: 수치 조건 충족\n  참고 원문(즉시 실행 지시 아님): OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- payments-service: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 92.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 [runbook:payments-service:cpu-spike #3]\n- cache-service: 수치 조건 충족 / 실행 승인 아님 / memory_percent 90.7% >= 90%: 수치 조건 충족 [runbook:cache-service:memory-leak #2]\n\nRunbook 검색 결과\n- payments-service: cpu-spike (유사도 0.475), high-latency (유사도 0.435)\n- cache-service: memory-leak (유사도 0.597)\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [monitoring:cache-service] MCP Tool get_monitoring_status / 대상 cache-service\n- [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops\n- [runbook:payments-service:high-latency] # Runbook: 응답 지연(High Latency) 대응 절차 / MCP Resource runbook://incident-response/high-latency / 서버 ops\n- [runbook:cache-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+    "report": {
+      "schema_version": 1,
+      "verification": {
+        "passed": true,
+        "attempts": 1,
+        "issues": [],
+        "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+      },
+      "facts": [
+        {
+          "system_name": "payments-service",
+          "status": "degraded",
+          "cpu_percent": 92.0,
+          "memory_percent": 55.5,
+          "alerts": [
+            "CPU 91% (threshold 80%)",
+            "payments-service-3 instance responding slow"
+          ],
+          "source_id": "monitoring:payments-service"
+        },
+        {
+          "system_name": "cache-service",
+          "status": "degraded",
+          "cpu_percent": 45.5,
+          "memory_percent": 90.7,
+          "alerts": [
+            "memory usage climbing steadily over 6h",
+            "heap near limit"
+          ],
+          "source_id": "monitoring:cache-service"
+        }
+      ],
+      "hypotheses": [
+        {
+          "system_name": "payments-service",
+          "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+          "source_id": "monitoring:payments-service",
+          "confirmed": false
+        },
+        {
+          "system_name": "cache-service",
+          "text": "메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다.",
+          "source_id": "monitoring:cache-service",
+          "confirmed": false
+        }
+      ],
+      "recommendations": [
+        {
+          "system_name": "payments-service",
+          "source_id": "runbook:payments-service:cpu-spike",
+          "step": "3",
+          "original_text": "CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.",
+          "status": "needs_confirmation",
+          "reason": "cpu_percent 92.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+        },
+        {
+          "system_name": "payments-service",
+          "source_id": "runbook:payments-service:high-latency",
+          "step": "4",
+          "original_text": "5분 내 p95가 임계치(1.0s) 아래로 내려오지 않으면 캐시 계층 또는 읽기 복제본으로 트래픽을 분산한다.",
+          "status": "needs_confirmation",
+          "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+        },
+        {
+          "system_name": "cache-service",
+          "source_id": "runbook:cache-service:memory-leak",
+          "step": "2",
+          "original_text": "OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.",
+          "status": "met",
+          "reason": "memory_percent 90.7% >= 90%: 수치 조건 충족"
+        }
+      ],
+      "condition_checks": [
+        {
+          "system_name": "payments-service",
+          "runbook_source": "runbook:payments-service:cpu-spike",
+          "step": "3",
+          "status": "needs_confirmation",
+          "reason": "cpu_percent 92.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+        },
+        {
+          "system_name": "cache-service",
+          "runbook_source": "runbook:cache-service:memory-leak",
+          "step": "2",
+          "status": "met",
+          "reason": "memory_percent 90.7% >= 90%: 수치 조건 충족"
+        }
+      ],
+      "sources": [
+        {
+          "id": "monitoring:payments-service",
+          "system_name": "payments-service",
+          "kind": "monitoring",
+          "tool": "get_monitoring_status"
+        },
+        {
+          "id": "monitoring:cache-service",
+          "system_name": "cache-service",
+          "kind": "monitoring",
+          "tool": "get_monitoring_status"
+        },
+        {
+          "id": "runbook:payments-service:cpu-spike",
+          "system_name": "payments-service",
+          "kind": "runbook",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "uri": "runbook://incident-response/cpu-spike",
+          "server": "ops",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "retrieval_score": 0.475461,
+          "indexed_sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+        },
+        {
+          "id": "runbook:payments-service:high-latency",
+          "system_name": "payments-service",
+          "kind": "runbook",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "uri": "runbook://incident-response/high-latency",
+          "server": "ops",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "retrieval_score": 0.435179,
+          "indexed_sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3"
+        },
+        {
+          "id": "runbook:cache-service:memory-leak",
+          "system_name": "cache-service",
+          "kind": "runbook",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "uri": "runbook://incident-response/memory-leak",
+          "server": "ops",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "retrieval_score": 0.596917,
+          "indexed_sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+        }
+      ],
+      "retrieval": {
+        "searches": [
+          {
+            "system_name": "payments-service",
+            "status": "found",
+            "query": "CPU 91% (threshold 80%); instance responding slow",
+            "hits": [
+              {
+                "document_id": "cpu-spike",
+                "incident_type": "cpu-spike",
+                "title": "# Runbook: CPU 급증 대응 절차",
+                "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                "score": 0.475461
+              },
+              {
+                "document_id": "high-latency",
+                "incident_type": "high-latency",
+                "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+                "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+                "score": 0.435179
+              }
+            ]
+          },
+          {
+            "system_name": "cache-service",
+            "status": "found",
+            "query": "장애 상태를 각각 확인하고 대응 매뉴얼을 알려주세요.\nmemory usage climbing steadily over 6h; heap near limit",
+            "hits": [
+              {
+                "document_id": "memory-leak",
+                "incident_type": "memory-leak",
+                "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                "score": 0.596917
+              }
+            ]
+          }
+        ],
+        "unmatched_systems": []
+      },
+      "collection": {
+        "status": "complete",
+        "requested_targets": [
+          "payments-service",
+          "cache-service"
+        ],
+        "failed_tasks": [],
+        "limitation": null
+      }
+    },
+    "route": "incident",
+    "validation_passed": true,
+    "events": [
+      {
+        "type": "RouteDecided",
+        "route": "incident",
+        "original_route": "incident",
+        "reason": "model"
+      },
+      {
+        "type": "PlanReconciled",
+        "added_targets": [],
+        "removed_targets": []
+      },
+      {
+        "type": "PlanCreated",
+        "task_count": 3,
+        "targets": [
+          "payments-service",
+          "cache-service"
+        ]
+      },
+      {
+        "type": "GateApplied",
+        "removed_analysis_tasks": 0
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-monitoring-0",
+        "source": "monitoring",
+        "target": "payments-service",
+        "system_name": "payments-service",
+        "retries": 1
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-monitoring-1",
+        "source": "monitoring",
+        "target": "cache-service",
+        "system_name": "cache-service",
+        "retries": 0
+      },
+      {
+        "type": "RunbookSearch",
+        "system_name": "payments-service",
+        "status": "found",
+        "documents": [
+          "cpu-spike",
+          "high-latency"
+        ]
+      },
+      {
+        "type": "RunbookSearch",
+        "system_name": "cache-service",
+        "status": "found",
+        "documents": [
+          "memory-leak"
+        ]
+      },
+      {
+        "type": "ReplanCheck",
+        "round": 0,
+        "is_sufficient": false,
+        "collection_finished": false,
+        "target": "cpu-spike",
+        "targets": [
+          "cpu-spike",
+          "high-latency",
+          "memory-leak"
+        ],
+        "systems": [
+          "payments-service",
+          "cache-service"
+        ]
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-gap-runbook-0",
+        "source": "runbook",
+        "target": "cpu-spike",
+        "system_name": "payments-service",
+        "retries": 0
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-gap-runbook-1",
+        "source": "runbook",
+        "target": "high-latency",
+        "system_name": "payments-service",
+        "retries": 0
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-gap-runbook-2",
+        "source": "runbook",
+        "target": "memory-leak",
+        "system_name": "cache-service",
+        "retries": 0
+      },
+      {
+        "type": "ReplanCheck",
+        "round": 1,
+        "is_sufficient": true,
+        "collection_finished": true,
+        "failed_systems": []
+      },
+      {
+        "type": "AnalysisCompleted",
+        "length": 9
+      },
+      {
+        "type": "DraftWritten",
+        "attempt": 1,
+        "length": 541
+      },
+      {
+        "type": "Validation",
+        "attempt": 1,
+        "verdict": "합격",
+        "exhausted": false,
+        "issues": []
+      },
+      {
+        "type": "ReportReady",
+        "verified": true,
+        "source_count": 5,
+        "attempts": 1,
+        "collection_status": "complete"
+      },
+      {
+        "type": "Finalize",
+        "pipeline": "incident-v2",
+        "verified": true
+      }
+    ],
+    "elapsed_seconds": 14.76,
+    "mode": "real MCP, real embeddinggemma, real qwen3:0.6b/8b; think=false",
+    "date": "2026-10-21"
+  },
+  {
+    "query": "payments-service CPU 급증과 메모리 증가 증상을 함께 점검하고 각각의 대응 매뉴얼을 알려주세요.",
+    "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 89.4%, 메모리 54.2% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n2) 원인 추정 — 확정 사실 아님\n- payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- payments-service [runbook:payments-service:cpu-spike #1]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.\n- payments-service [runbook:payments-service:cpu-spike #2]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): 반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- payments-service: 조건 미충족 / 조치 권고 보류 / cpu_percent 89.4% > 90%: 수치 조건 미충족, 해당 조치 권고 보류 [runbook:payments-service:cpu-spike #3]\n\nRunbook 검색 결과\n- payments-service: cpu-spike (유사도 0.596)\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+    "report": {
+      "schema_version": 1,
+      "verification": {
+        "passed": true,
+        "attempts": 1,
+        "issues": [],
+        "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+      },
+      "facts": [
+        {
+          "system_name": "payments-service",
+          "status": "degraded",
+          "cpu_percent": 89.4,
+          "memory_percent": 54.2,
+          "alerts": [
+            "CPU 91% (threshold 80%)",
+            "payments-service-3 instance responding slow"
+          ],
+          "source_id": "monitoring:payments-service"
+        }
+      ],
+      "hypotheses": [
+        {
+          "system_name": "payments-service",
+          "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+          "source_id": "monitoring:payments-service",
+          "confirmed": false
+        }
+      ],
+      "recommendations": [
+        {
+          "system_name": "payments-service",
+          "source_id": "runbook:payments-service:cpu-spike",
+          "step": "1",
+          "original_text": "get_monitoring_status로 CPU 사용률과 최근 배포/트래픽 변화 시점을 확인한다.",
+          "status": "needs_confirmation",
+          "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+        },
+        {
+          "system_name": "payments-service",
+          "source_id": "runbook:payments-service:cpu-spike",
+          "step": "2",
+          "original_text": "반복 호출, 배치 작업 중복 실행 같은 특정 요청 패턴이 원인인지 최근 로그에서 확인한다.",
+          "status": "needs_confirmation",
+          "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+        }
+      ],
+      "condition_checks": [
+        {
+          "system_name": "payments-service",
+          "runbook_source": "runbook:payments-service:cpu-spike",
+          "step": "3",
+          "status": "not_met",
+          "reason": "cpu_percent 89.4% > 90%: 수치 조건 미충족, 해당 조치 권고 보류"
+        }
+      ],
+      "sources": [
+        {
+          "id": "monitoring:payments-service",
+          "system_name": "payments-service",
+          "kind": "monitoring",
+          "tool": "get_monitoring_status"
+        },
+        {
+          "id": "runbook:payments-service:cpu-spike",
+          "system_name": "payments-service",
+          "kind": "runbook",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "uri": "runbook://incident-response/cpu-spike",
+          "server": "ops",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "retrieval_score": 0.596353,
+          "indexed_sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+        }
+      ],
+      "retrieval": {
+        "searches": [
+          {
+            "system_name": "payments-service",
+            "status": "found",
+            "query": "CPU 급증과 메모리 증가 증상을 함께 점검하고 각각의 대응 매뉴얼을 알려주세요.\nCPU 91% (threshold 80%); instance responding slow",
+            "hits": [
+              {
+                "document_id": "cpu-spike",
+                "incident_type": "cpu-spike",
+                "title": "# Runbook: CPU 급증 대응 절차",
+                "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                "score": 0.596353
+              }
+            ]
+          }
+        ],
+        "unmatched_systems": []
+      },
+      "collection": {
+        "status": "complete",
+        "requested_targets": [
+          "payments-service"
+        ],
+        "failed_tasks": [],
+        "limitation": null
+      }
+    },
+    "route": "incident",
+    "validation_passed": true,
+    "events": [
+      {
+        "type": "RouteDecided",
+        "route": "incident",
+        "original_route": "incident",
+        "reason": "model"
+      },
+      {
+        "type": "PlanReconciled",
+        "added_targets": [],
+        "removed_targets": []
+      },
+      {
+        "type": "PlanCreated",
+        "task_count": 2,
+        "targets": [
+          "payments-service"
+        ]
+      },
+      {
+        "type": "GateApplied",
+        "removed_analysis_tasks": 0
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-monitoring-0",
+        "source": "monitoring",
+        "target": "payments-service",
+        "system_name": "payments-service",
+        "retries": 0
+      },
+      {
+        "type": "RunbookSearch",
+        "system_name": "payments-service",
+        "status": "found",
+        "documents": [
+          "cpu-spike"
+        ]
+      },
+      {
+        "type": "ReplanCheck",
+        "round": 0,
+        "is_sufficient": false,
+        "collection_finished": false,
+        "target": "cpu-spike",
+        "targets": [
+          "cpu-spike"
+        ],
+        "systems": [
+          "payments-service"
+        ]
+      },
+      {
+        "type": "TaskCompleted",
+        "id": "task-gap-runbook-0",
+        "source": "runbook",
+        "target": "cpu-spike",
+        "system_name": "payments-service",
+        "retries": 0
+      },
+      {
+        "type": "ReplanCheck",
+        "round": 1,
+        "is_sufficient": true,
+        "collection_finished": true,
+        "failed_systems": []
+      },
+      {
+        "type": "AnalysisCompleted",
+        "length": 9
+      },
+      {
+        "type": "DraftWritten",
+        "attempt": 1,
+        "length": 339
+      },
+      {
+        "type": "Validation",
+        "attempt": 1,
+        "verdict": "합격",
+        "exhausted": false,
+        "issues": []
+      },
+      {
+        "type": "ReportReady",
+        "verified": true,
+        "source_count": 2,
+        "attempts": 1,
+        "collection_status": "complete"
+      },
+      {
+        "type": "Finalize",
+        "pipeline": "incident-v2",
+        "verified": true
+      }
+    ],
+    "elapsed_seconds": 14.97,
+    "mode": "real MCP, real embeddinggemma, real qwen3:0.6b/8b; think=false",
+    "date": "2026-10-21"
+  }
+]
