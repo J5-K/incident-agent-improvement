@@ -18,3 +18,6 @@ session.db-*
 .DS_Store
 원본소스_개선전.zip
 original_source.zip
+
+# Rebuildable local embedding cache
+data/.cache/

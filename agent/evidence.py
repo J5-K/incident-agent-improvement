@@ -71,7 +71,7 @@ def writer_prompt(query, collected, feedback=None):
         "형식: {\"systems\":[{\"system_name\":\"정확한 이름\",\"monitoring_source\":\"제공된 ID\","
         "\"cause\":\"undetermined|load|memory|dependency 중 하나\",\"actions\":[{\"runbook_source\":\"제공된 ID\","
         "\"step\":\"제공된 단계 번호 문자열\",\"condition_status\":\"제공된 조건 status 그대로\"}]}]}. "
-        "모든 시스템을 정확히 한 번 포함하고 각 시스템의 매뉴얼에서 최소 한 단계를 선택하세요. "
+        "모든 시스템을 정확히 한 번 포함하고 각 시스템에 제공된 모든 매뉴얼마다 최소 한 단계를 선택하세요. "
         "not_met/unknown/needs_confirmation은 실행 승인이 아닙니다. 수치와 원문은 코드가 출력합니다.")
     user = json.dumps({"query": query, "evidence": report_contract(collected), "feedback": feedback}, ensure_ascii=False)
     return system, user
@@ -117,6 +117,10 @@ def validate_proposal(draft, collected, targets):
             status = action_condition(book, int(step), mon["data"])["status"]
             if action["condition_status"] != status:
                 issues.append(f"{name}: 조건 판단 불일치({bid} #{step}: {status})")
+        required = {key for key, book in records.items() if book["source"] == "runbook" and book["system_name"] == name}
+        selected = {bid for bid, _ in seen}
+        if required - selected:
+            issues.append(f"{name}: 검색된 매뉴얼 누락: " + ", ".join(sorted(required-selected)))
     if sorted(names) != sorted(targets) or len(names) != len(set(names)):
         issues.append("요청 시스템 누락·중복·추가 금지: " + ", ".join(targets))
     return proposal, issues

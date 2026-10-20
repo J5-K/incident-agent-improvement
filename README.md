@@ -11,6 +11,7 @@ bash sh/setup_venv.sh
 cp .env.example .env
 # .env를 본인 환경에 맞게 설정
 bash sh/setup_ollama.sh
+ollama pull embeddinggemma
 bash sh/run_agent_ollma.sh
 ```
 
@@ -25,4 +26,4 @@ PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .ve
 PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .venv/bin/python3 evaluation/run.py --refs 2c2973d f3836e2 HEAD
 ```
 
-자동 평가는 네트워크 없는 fake/mock 그래프 평가다. 실제 모델 평가와 해석·재현 방법은 보고서를 참고한다. [제공 코드 원본 매뉴얼](doc/README.md)은 별도로 보존한다.
+기존 버전 비교는 네트워크 없는 fake/mock 그래프 평가다. RAG 실제 임베딩 평가는 `.venv/bin/python3 evaluation/run_retrieval.py`로 실행한다. 서버 기본은 RAG이며 비교용 키워드 모드는 `RUNBOOK_SEARCH_MODE=keyword`다. 실제 모델 평가와 해석·재현 방법은 보고서를 참고한다. [제공 코드 원본 매뉴얼](doc/README.md)은 별도로 보존한다.

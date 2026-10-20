@@ -1,0 +1,7 @@
+{
+  "mode": "real embeddings + real MCP + qwen3:8b writer; controlled fake route/planning",
+  "status": "interrupted_after_long_generation",
+  "observed_elapsed_seconds_at_least": 244,
+  "completed": false,
+  "note": "첫 대표 질문 생성이 4분 이상 완료되지 않아 테스트 프로세스에 SIGINT로 정상 취소 요청. 최종 답변 성공으로 간주하지 않음. 서버 코드나 작성 모델 설정은 변경하지 않음."
+}

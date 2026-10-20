@@ -25,6 +25,7 @@ from pydantic import BaseModel
 from agent.deps import SupervisorDeps
 from agent.fake_llm import FastLLM, QualityLLM
 from agent.graph import build_graph
+from agent.runbook_search import RunbookSearch, OllamaEmbedder
 from agent.mcp_client import MCPClient
 from agent.session_store import SqliteSessionStore
 from agent.supervisor_v1 import run_v1
@@ -67,12 +68,23 @@ async def lifespan(app: FastAPI):
     await mcp.start()   # Wave 2 — MCP subprocess는 서버 수명 동안 딱 1개
     backend, fast_llm, quality_llm = _build_llms()
     app.state.llm_backend = backend
+    search_mode = os.environ.get("RUNBOOK_SEARCH_MODE", "rag")
+    if search_mode not in ("rag", "keyword"):
+        raise ValueError("RUNBOOK_SEARCH_MODE must be rag or keyword")
+    retriever = RunbookSearch(
+        OllamaEmbedder(os.environ.get("RUNBOOK_EMBED_MODEL", "embeddinggemma:latest")),
+        cache_path=os.path.join(os.path.dirname(__file__), "data/.cache/runbooks-index.json"),
+        min_score=float(os.environ.get("RUNBOOK_MIN_SCORE", "0.43")),
+        score_margin=float(os.environ.get("RUNBOOK_SCORE_MARGIN", "0.08")),
+        top_k=int(os.environ.get("RUNBOOK_TOP_K", "3"))) if search_mode == "rag" else None
+    app.state.runbook_search_mode = search_mode
     deps = SupervisorDeps(
         fast_llm=fast_llm,
         quality_llm=quality_llm,
         mcp=mcp,
         session_store=SqliteSessionStore(),
         version=os.environ.get("SUPERVISOR_VERSION", "v2"),
+        runbook_search=retriever,
     )
     app.state.deps = deps
     app.state.graph = build_graph(deps) if deps.version == "v2" else None
@@ -92,7 +104,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "instance_id": app.state.instance_id,
+    return {"runbook_search_mode": app.state.runbook_search_mode, "status": "ok", "instance_id": app.state.instance_id,
             "creation_count": CREATION_COUNT,
             "supervisor_version": app.state.deps.version,
             "llm_backend": app.state.llm_backend,

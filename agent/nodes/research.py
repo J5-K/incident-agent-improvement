@@ -1,12 +1,15 @@
 """MCP collection and per-system runbook replanning. Successful evidence is retained when individual tasks fail."""
 import asyncio
 import time
+import hashlib
+import re
 
 from langsmith import traceable
 
 from ..deps import SupervisorDeps
 from ..state import AgentState, _cost
 from ..retry import with_retry
+from ..runbook_search import system_search_query
 
 _INCIDENT_TYPE_RULES = [
     ("latency", "high-latency"),
@@ -59,6 +62,8 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
             raise discovery_error
         uri = runbook_uri_template.format(incident_type=task["target"])
         data = await deps.mcp.read_resource(uri, server=runbook_server)
+        if task.get("expected_sha256") and hashlib.sha256(data.encode()).hexdigest() != task["expected_sha256"]:
+            raise ValueError("Retrieved index and MCP runbook content differ")
         return {"idx": idx, "source": "runbook", "data": data, "retries": 0}
 
     started = time.perf_counter()
@@ -90,7 +95,7 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
         collected.append({"source": r["source"], "data": r["data"],
                           "system_name": system_name,
                           "source_id": ("monitoring:" + system_name if r["source"] == "monitoring" else "runbook:" + system_name + ":" + task["target"]),
-                          **({"incident_type": task["target"], "uri": runbook_uri_template.format(incident_type=task["target"]), "server": runbook_server} if r["source"] == "runbook" else {"tool": "get_monitoring_status"})})
+                          **({"incident_type": task["target"], "uri": runbook_uri_template.format(incident_type=task["target"]), "server": runbook_server, "retrieval_score": task.get("retrieval_score"), "indexed_sha256": task.get("expected_sha256")} if r["source"] == "runbook" else {"tool": "get_monitoring_status"})})
         retry_total += r["retries"]
         events.append({"type": "TaskCompleted", "id": new_tasks[r["idx"]]["id"],
                        "source": r["source"], "target": new_tasks[r["idx"]]["target"],
@@ -115,27 +120,62 @@ async def replan_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
     collected = state.get("collected", [])
     covered = {c.get("system_name") for c in collected if c["source"] == "runbook"}
     failures = state.get("collection_failures", [])
-    blocked = {f["system_name"] for f in failures if f["source"] in ("monitoring", "runbook")}
-    missing = [name for name in state["registered_targets"] if name not in covered and name not in blocked]
+    blocked = {f["system_name"] for f in failures if f["source"] in ("monitoring", "runbook", "runbook_search")}
+    unmatched = list(state.get("runbook_unmatched", []))
+    searches = list(state.get("runbook_searches", []))
+    missing = [name for name in state["registered_targets"] if name not in covered and name not in blocked and name not in unmatched]
     rounds = state.get("replan_rounds", 0)
     if not missing:
         return {"events": state["events"] + [
-            {"type": "ReplanCheck", "round": rounds, "is_sufficient": not failures,
+            {"type": "ReplanCheck", "round": rounds, "is_sufficient": not failures and not unmatched,
              "collection_finished": True, "failed_systems": sorted(blocked)}]}
     if rounds >= 1:
         raise RuntimeError("매뉴얼 수집 누락: " + ", ".join(missing))
     gap_tasks = []
-    for i, name in enumerate(missing):
+    events = list(state["events"])
+    failures = list(failures)
+    retriever = getattr(deps, "runbook_search", None)
+    for name in missing:
         monitoring = [c for c in collected if c["source"] == "monitoring"
                       and c["data"].get("system_name") == name]
         if not monitoring:
             raise RuntimeError("모니터링 수집 누락: " + name)
-        gap_tasks.append({"id": f"task-gap-runbook-{i}", "agent": "research",
-                          "kind": "runbook", "system_name": name,
-                          "target": _classify_incident_type(monitoring), "status": "pending"})
-    verdict = {"type": "ReplanCheck", "round": rounds, "is_sufficient": False,
-               "target": gap_tasks[0]["target"],
-               "targets": [t["target"] for t in gap_tasks],
-               "systems": missing}
+        if retriever is None:
+            # Explicit legacy mode/test deps, never used as fallback after RAG errors.
+            hits = [{"incident_type": _classify_incident_type(monitoring)}]
+        else:
+            query = system_search_query(state["query"], name, state["registered_targets"], monitoring[0]["data"])
+            try:
+                hits = await retriever.search(query)
+                if any(not re.fullmatch(r"[a-z0-9-]+", h["incident_type"]) or not re.fullmatch(r"[0-9a-f]{64}", h["sha256"]) for h in hits):
+                    raise ValueError("Invalid search document metadata")
+            except Exception as exc:
+                failure={"task_id": "search-"+name, "system_name":name,"source":"runbook_search", "target":name,
+                         "error_type":type(exc).__name__,"reason":"임베딩·매뉴얼 검색 실패. 키워드나 기본 매뉴얼로 대체하지 않았습니다."}
+                failures.append(failure)
+                searches.append({"system_name":name,"status":"error","hits":[]})
+                events.append({"type":"TaskFailed",**failure})
+                continue
+            status="found" if hits else "no_match"
+            searches.append({"system_name":name,"status":status,"query":query,"hits":hits})
+            events.append({"type":"RunbookSearch","system_name":name,"status":status,
+                           "documents":[h["incident_type"] for h in hits]})
+            if not hits:
+                unmatched.append(name)
+                continue
+        seen=set()
+        for hit in hits:
+            kind=hit["incident_type"]
+            if kind in seen:
+                continue
+            seen.add(kind)
+            gap_tasks.append({"id": f"task-gap-runbook-{len(gap_tasks)}", "agent":"research",
+                "kind":"runbook","system_name":name,"target":kind,"status":"pending",
+                **({"expected_sha256":hit["sha256"],"retrieval_score":hit["score"]} if retriever is not None else {})})
+    verdict = {"type":"ReplanCheck","round":rounds,"is_sufficient":False,
+               "collection_finished":not gap_tasks,
+               "target":gap_tasks[0]["target"] if gap_tasks else None,
+               "targets":[t["target"] for t in gap_tasks],"systems":missing}
     return {"tasks": state["tasks"] + gap_tasks, "replan_rounds": rounds + 1,
-            "events": state["events"] + [verdict]}
+            "events": events + [verdict], "collection_failures":failures,
+            "runbook_unmatched":unmatched, "runbook_searches":searches}

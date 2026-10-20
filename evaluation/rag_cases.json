@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "id": "development-cpu",
+      "split": "development",
+      "query": "CPU 사용률이 급증하고 연산 처리가 밀립니다.",
+      "expected": [
+        "cpu-spike"
+      ]
+    },
+    {
+      "id": "development-memory",
+      "split": "development",
+      "query": "메모리 사용량이 시간에 따라 증가하고 heap near limit 경고가 있습니다.",
+      "expected": [
+        "memory-leak"
+      ]
+    },
+    {
+      "id": "development-disk",
+      "split": "development",
+      "query": "로그 저장 공간이 부족하고 disk usage 95% 경고가 있습니다.",
+      "expected": [
+        "disk-full"
+      ]
+    },
+    {
+      "id": "development-latency",
+      "split": "development",
+      "query": "로그인 p95 latency가 높고 connection pool이 92% 사용 중입니다.",
+      "expected": [
+        "high-latency"
+      ]
+    },
+    {
+      "id": "development-network",
+      "split": "development",
+      "query": "upstream timeout과 network packet loss가 발생했습니다.",
+      "expected": [
+        "network-timeout"
+      ]
+    },
+    {
+      "id": "development-db",
+      "split": "development",
+      "query": "데이터베이스 서버가 다운되어 연결이 실패합니다.",
+      "expected": [
+        "db-down"
+      ]
+    },
+    {
+      "id": "development-compound",
+      "split": "development",
+      "query": "CPU 사용률이 급증하고 메모리 사용량도 계속 증가하며 heap near limit입니다.",
+      "expected": [
+        "cpu-spike",
+        "memory-leak"
+      ]
+    },
+    {
+      "id": "development-none",
+      "split": "development",
+      "query": "오늘 점심 메뉴로 김치찌개를 먹을까요?",
+      "expected": []
+    },
+    {
+      "id": "evaluation-cpu",
+      "split": "evaluation",
+      "query": "프로세서가 계속 바쁘고 같은 작업 요청을 감당하지 못해요.",
+      "expected": [
+        "cpu-spike"
+      ]
+    },
+    {
+      "id": "evaluation-memory",
+      "split": "evaluation",
+      "query": "오래 켜 둘수록 램이 차오르고 메모리가 반환되지 않아요.",
+      "expected": [
+        "memory-leak"
+      ]
+    },
+    {
+      "id": "evaluation-disk",
+      "split": "evaluation",
+      "query": "로그를 기록할 여유 용량이 없고 파일시스템이 가득 찼어요.",
+      "expected": [
+        "disk-full"
+      ]
+    },
+    {
+      "id": "evaluation-latency",
+      "split": "evaluation",
+      "query": "인증 응답 시간이 길고 사용 가능한 연결 풀이 거의 없어요.",
+      "expected": [
+        "high-latency"
+      ]
+    },
+    {
+      "id": "evaluation-network",
+      "split": "evaluation",
+      "query": "다른 서비스 호출이 제한 시간을 넘고 전송 패킷이 누락돼요.",
+      "expected": [
+        "network-timeout"
+      ]
+    },
+    {
+      "id": "evaluation-db",
+      "split": "evaluation",
+      "query": "DB 연결이 거부되고 데이터베이스 프로세스가 내려갔어요.",
+      "expected": [
+        "db-down"
+      ]
+    },
+    {
+      "id": "evaluation-compound",
+      "split": "evaluation",
+      "query": "연산 부하가 치솟으면서 힙 메모리도 반환되지 않고 계속 쌓여요.",
+      "expected": [
+        "cpu-spike",
+        "memory-leak"
+      ]
+    },
+    {
+      "id": "evaluation-none",
+      "split": "evaluation",
+      "query": "휴가 때 방문할 여행지를 추천해 주세요.",
+      "expected": []
+    },
+    {
+      "id": "evaluation-none2",
+      "split": "evaluation",
+      "query": "동영상 자막 글꼴과 색상을 바꾸는 방법을 알려주세요.",
+      "expected": []
+    }
+  ],
+  "note": "구현 전 기대 매뉴얼을 정의한 소규모 수작업 세트. development는 임계값 선택용, evaluation은 별도 확인용이며 일반화 성능을 보증하지 않음."
+}

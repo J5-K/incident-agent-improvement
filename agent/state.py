@@ -13,6 +13,8 @@ class AgentState(TypedDict, total=False):
     gate_removed: int
     collected: list[dict]
     collection_failures: list[dict]
+    runbook_unmatched: list[str]
+    runbook_searches: list[dict]
     replan_rounds: int
     retry_count: int
     parallel_elapsed: float

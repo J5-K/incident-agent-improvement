@@ -1,0 +1,1082 @@
+{
+  "fixture_sha256": "2775c6d8d5775f26f615979fabc0167f9a2825e53b525c35f19c2050bb9eb62e",
+  "index_manifest": {
+    "schema": 1,
+    "prefix_version": 1,
+    "model": "embeddinggemma:latest:85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1",
+    "documents": [
+      [
+        "cpu-spike",
+        "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+      ],
+      [
+        "db-down",
+        "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5"
+      ],
+      [
+        "disk-full",
+        "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7"
+      ],
+      [
+        "high-latency",
+        "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3"
+      ],
+      [
+        "memory-leak",
+        "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+      ],
+      [
+        "network-timeout",
+        "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596"
+      ]
+    ]
+  },
+  "settings": {
+    "min_score": 0.43,
+    "score_margin": 0.08,
+    "top_k": 3,
+    "selected_using": "development only"
+  },
+  "index_ready_seconds": 0.03138629114255309,
+  "note": "실제 로컬 임베딩 검색 평가. 같은 문장을 기존 키워드 분류기의 alert 문자열로도 입력한다. 운영 모니터링 전체나 답변 LLM 평가가 아님. 소규모 수작업 세트.",
+  "summary": {
+    "development": {
+      "count": 8,
+      "rag": {
+        "exact_set_match": 1.0,
+        "micro_precision": 1.0,
+        "micro_recall": 1.0,
+        "no_match_accuracy": 1.0
+      },
+      "keyword": {
+        "exact_set_match": 0.75,
+        "micro_precision": 0.875,
+        "micro_recall": 0.875,
+        "no_match_accuracy": 0.0
+      }
+    },
+    "evaluation": {
+      "count": 9,
+      "rag": {
+        "exact_set_match": 0.6666666666666666,
+        "micro_precision": 1.0,
+        "micro_recall": 0.625,
+        "no_match_accuracy": 1.0
+      },
+      "keyword": {
+        "exact_set_match": 0.1111111111111111,
+        "micro_precision": 0.1111111111111111,
+        "micro_recall": 0.125,
+        "no_match_accuracy": 0.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "development-cpu",
+      "split": "development",
+      "query": "CPU 사용률이 급증하고 연산 처리가 밀립니다.",
+      "expected": [
+        "cpu-spike"
+      ],
+      "rag": [
+        "cpu-spike"
+      ],
+      "keyword": [
+        "cpu-spike"
+      ],
+      "ranked": [
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.5558090268046707
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.38376844432301427
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.32568472369592705
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.303298392912259
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.23139045835463323
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.1778475214369738
+        }
+      ],
+      "embedding_search_seconds": 0.03615733305923641,
+      "keyword_seconds": 3.833090886473656e-06
+    },
+    {
+      "id": "development-memory",
+      "split": "development",
+      "query": "메모리 사용량이 시간에 따라 증가하고 heap near limit 경고가 있습니다.",
+      "expected": [
+        "memory-leak"
+      ],
+      "rag": [
+        "memory-leak"
+      ],
+      "keyword": [
+        "memory-leak"
+      ],
+      "ranked": [
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.5037771002549403
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.40361868109545546
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.37607676521794675
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.32275750383555163
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.257826690582807
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.18727575311668032
+        }
+      ],
+      "embedding_search_seconds": 0.022648582933470607,
+      "keyword_seconds": 3.7080608308315277e-06
+    },
+    {
+      "id": "development-disk",
+      "split": "development",
+      "query": "로그 저장 공간이 부족하고 disk usage 95% 경고가 있습니다.",
+      "expected": [
+        "disk-full"
+      ],
+      "rag": [
+        "disk-full"
+      ],
+      "keyword": [
+        "disk-full"
+      ],
+      "ranked": [
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.6115548164552416
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.383479004633416
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.3609511073763288
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.32171947496799475
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.2547396997248202
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.23519758560986884
+        }
+      ],
+      "embedding_search_seconds": 0.022585917031392455,
+      "keyword_seconds": 3.7080608308315277e-06
+    },
+    {
+      "id": "development-latency",
+      "split": "development",
+      "query": "로그인 p95 latency가 높고 connection pool이 92% 사용 중입니다.",
+      "expected": [
+        "high-latency"
+      ],
+      "rag": [
+        "high-latency"
+      ],
+      "keyword": [
+        "high-latency"
+      ],
+      "ranked": [
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.5378877144874795
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.31766555241944733
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.3007771762519213
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.2886472615400933
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.28842359709572857
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.2514020252495717
+        }
+      ],
+      "embedding_search_seconds": 0.03172012511640787,
+      "keyword_seconds": 2.9581133276224136e-06
+    },
+    {
+      "id": "development-network",
+      "split": "development",
+      "query": "upstream timeout과 network packet loss가 발생했습니다.",
+      "expected": [
+        "network-timeout"
+      ],
+      "rag": [
+        "network-timeout"
+      ],
+      "keyword": [
+        "network-timeout"
+      ],
+      "ranked": [
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.47869815628221746
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.34249661687796823
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.28944997688049773
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.2728605018408171
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.23351972678162045
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.1928592017440409
+        }
+      ],
+      "embedding_search_seconds": 0.02228116593323648,
+      "keyword_seconds": 3.4580007195472717e-06
+    },
+    {
+      "id": "development-db",
+      "split": "development",
+      "query": "데이터베이스 서버가 다운되어 연결이 실패합니다.",
+      "expected": [
+        "db-down"
+      ],
+      "rag": [
+        "db-down"
+      ],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.5682829082415579
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.32445618240597074
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.3120498701907785
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.26223223182665334
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.22107053550409117
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.19370749437847137
+        }
+      ],
+      "embedding_search_seconds": 0.022173458011820912,
+      "keyword_seconds": 4.042172804474831e-06
+    },
+    {
+      "id": "development-compound",
+      "split": "development",
+      "query": "CPU 사용률이 급증하고 메모리 사용량도 계속 증가하며 heap near limit입니다.",
+      "expected": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "rag": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "keyword": [
+        "cpu-spike"
+      ],
+      "ranked": [
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.5200613347109199
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.47228022082440346
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.3812160303967091
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.346847626709409
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.2580602758240541
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.1983907586631297
+        }
+      ],
+      "embedding_search_seconds": 0.022306542145088315,
+      "keyword_seconds": 3.00002284348011e-06
+    },
+    {
+      "id": "development-none",
+      "split": "development",
+      "query": "오늘 점심 메뉴로 김치찌개를 먹을까요?",
+      "expected": [],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.10380016033036296
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.08489828451891311
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.07532919857199172
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.07145697028885702
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.060399498543150174
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.048639531689779886
+        }
+      ],
+      "embedding_search_seconds": 0.02301695803180337,
+      "keyword_seconds": 3.4580007195472717e-06
+    },
+    {
+      "id": "evaluation-cpu",
+      "split": "evaluation",
+      "query": "프로세서가 계속 바쁘고 같은 작업 요청을 감당하지 못해요.",
+      "expected": [
+        "cpu-spike"
+      ],
+      "rag": [
+        "cpu-spike"
+      ],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.4632578558686908
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.38744655270150075
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.3365990751157812
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.31330970406950803
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.2960770860089193
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.22015009277284783
+        }
+      ],
+      "embedding_search_seconds": 0.023611666867509484,
+      "keyword_seconds": 4.041939973831177e-06
+    },
+    {
+      "id": "evaluation-memory",
+      "split": "evaluation",
+      "query": "오래 켜 둘수록 램이 차오르고 메모리가 반환되지 않아요.",
+      "expected": [
+        "memory-leak"
+      ],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.4128923729336335
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.3101379428562483
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.2814337214559944
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.26967325906229256
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.23612667646006047
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.21113252334518787
+        }
+      ],
+      "embedding_search_seconds": 0.026410584105178714,
+      "keyword_seconds": 3.500143066048622e-06
+    },
+    {
+      "id": "evaluation-disk",
+      "split": "evaluation",
+      "query": "로그를 기록할 여유 용량이 없고 파일시스템이 가득 찼어요.",
+      "expected": [
+        "disk-full"
+      ],
+      "rag": [
+        "disk-full"
+      ],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.5673508020072537
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.29369268597973847
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.2617986454593715
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.2617680585227537
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.19447613265735292
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.18167357641699072
+        }
+      ],
+      "embedding_search_seconds": 0.025592332938686013,
+      "keyword_seconds": 4.082918167114258e-06
+    },
+    {
+      "id": "evaluation-latency",
+      "split": "evaluation",
+      "query": "인증 응답 시간이 길고 사용 가능한 연결 풀이 거의 없어요.",
+      "expected": [
+        "high-latency"
+      ],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.3471406177166916
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.32317441650102086
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.24914399648030944
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.24339979072205534
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.2137880052240326
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.17492743187328233
+        }
+      ],
+      "embedding_search_seconds": 0.02361829183064401,
+      "keyword_seconds": 3.875000402331352e-06
+    },
+    {
+      "id": "evaluation-network",
+      "split": "evaluation",
+      "query": "다른 서비스 호출이 제한 시간을 넘고 전송 패킷이 누락돼요.",
+      "expected": [
+        "network-timeout"
+      ],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.4159350687171627
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.3676354130131981
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.28898732114684517
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.24308543098306507
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.24250277645101045
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.2280486628695748
+        }
+      ],
+      "embedding_search_seconds": 0.02242699987255037,
+      "keyword_seconds": 3.3329706639051437e-06
+    },
+    {
+      "id": "evaluation-db",
+      "split": "evaluation",
+      "query": "DB 연결이 거부되고 데이터베이스 프로세스가 내려갔어요.",
+      "expected": [
+        "db-down"
+      ],
+      "rag": [
+        "db-down"
+      ],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.5598356231510205
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.3629765531180272
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.3000754137022774
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.2920562879571865
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.28334937024249757
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.27573270502673075
+        }
+      ],
+      "embedding_search_seconds": 0.022936624940484762,
+      "keyword_seconds": 4.165805876255035e-06
+    },
+    {
+      "id": "evaluation-compound",
+      "split": "evaluation",
+      "query": "연산 부하가 치솟으면서 힙 메모리도 반환되지 않고 계속 쌓여요.",
+      "expected": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "rag": [
+        "memory-leak",
+        "cpu-spike"
+      ],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.46845679411141034
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.45063434358542026
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.3706322032127071
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.3263711493768441
+        },
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.2774638318926135
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.23468132173628387
+        }
+      ],
+      "embedding_search_seconds": 0.024315999820828438,
+      "keyword_seconds": 7.666880264878273e-06
+    },
+    {
+      "id": "evaluation-none",
+      "split": "evaluation",
+      "query": "휴가 때 방문할 여행지를 추천해 주세요.",
+      "expected": [],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.15171898981785717
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.12299365060320355
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.11209371120842836
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.11133934086963095
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.10774125460620503
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.09027413120281783
+        }
+      ],
+      "embedding_search_seconds": 0.023492957931011915,
+      "keyword_seconds": 4.37488779425621e-06
+    },
+    {
+      "id": "evaluation-none2",
+      "split": "evaluation",
+      "query": "동영상 자막 글꼴과 색상을 바꾸는 방법을 알려주세요.",
+      "expected": [],
+      "rag": [],
+      "keyword": [
+        "db-down"
+      ],
+      "ranked": [
+        {
+          "document_id": "network-timeout",
+          "incident_type": "network-timeout",
+          "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+          "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+          "score": 0.11506889048302325
+        },
+        {
+          "document_id": "disk-full",
+          "incident_type": "disk-full",
+          "title": "# Runbook: 디스크 용량 부족 대응 절차",
+          "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+          "score": 0.0834854641314516
+        },
+        {
+          "document_id": "high-latency",
+          "incident_type": "high-latency",
+          "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+          "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+          "score": 0.06831560647887132
+        },
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.06232148671714221
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.05253687285551506
+        },
+        {
+          "document_id": "db-down",
+          "incident_type": "db-down",
+          "title": "# Runbook: DB Down 대응 절차",
+          "sha256": "a2d4f4d3bc89984348976e9012518ceba32f389a35bf5ee7da4c19f7e1de9be5",
+          "score": 0.04928186656536163
+        }
+      ],
+      "embedding_search_seconds": 0.03762316610664129,
+      "keyword_seconds": 3.95788811147213e-06
+    }
+  ]
+}
