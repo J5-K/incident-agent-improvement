@@ -1,4 +1,4 @@
-"""MCP collection and per-system runbook replanning. Behavior preserved from graph.py."""
+"""MCP collection and per-system runbook replanning. Successful evidence is retained when individual tasks fail."""
 import asyncio
 import time
 
@@ -39,9 +39,13 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
     # 서버들을 조회(list)해 유효한 서버를 찾은 뒤에만 그 서버로 요청한다.
     needs_runbook = any(tasks[i]["kind"] != "monitoring" for i in research_indices)
     runbook_server = runbook_uri_template = None
+    discovery_error = None
     if needs_runbook:
-        runbook_server, runbook_uri_template = await deps.mcp.find_resource_template(
-            "get_incident_runbook")
+        try:
+            runbook_server, runbook_uri_template = await deps.mcp.find_resource_template(
+                "get_incident_runbook")
+        except Exception as exc:
+            discovery_error = exc
 
     async def run_one(idx: int) -> dict:
         task = tasks[idx]
@@ -51,18 +55,34 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
                 deps.mcp.call_tool, "get_monitoring_status",
                 {"system_name": task["target"]})
             return {"idx": idx, "source": "monitoring", "data": data, "retries": retries}
+        if discovery_error is not None:
+            raise discovery_error
         uri = runbook_uri_template.format(incident_type=task["target"])
         data = await deps.mcp.read_resource(uri, server=runbook_server)
         return {"idx": idx, "source": "runbook", "data": data, "retries": 0}
 
     started = time.perf_counter()
-    results = await asyncio.gather(*(run_one(i) for i in research_indices))
+    results = await asyncio.gather(*(run_one(i) for i in research_indices), return_exceptions=True)
     elapsed = round(time.perf_counter() - started, 2)
 
     new_tasks = [dict(t) for t in tasks]
     collected = list(state.get("collected", []))
     events = list(state["events"])
-    for r in results:
+    failures = list(state.get("collection_failures", []))
+    for idx, r in zip(research_indices, results):
+        if isinstance(r, BaseException):
+            # Cancellation is control flow, not a recoverable tool failure.
+            if not isinstance(r, Exception):
+                raise r
+            task = new_tasks[idx]
+            source = "monitoring" if task["kind"] == "monitoring" else "runbook"
+            failure = {"task_id": task["id"], "system_name": task["target"] if source == "monitoring" else task["system_name"],
+                       "source": source, "target": task["target"], "error_type": type(r).__name__,
+                       "reason": "조회 실패. 확보되지 않은 자료로 진단하지 않습니다."}
+            task["status"] = "failed"
+            failures.append(failure)
+            events.append({"type": "TaskFailed", **failure})
+            continue
         new_tasks[r["idx"]]["status"] = "done"
         task = new_tasks[r["idx"]]
         system_name = (task["target"] if r["source"] == "monitoring"
@@ -77,7 +97,7 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
                        "system_name": system_name,
                        "retries": r["retries"]})
     return {"tasks": new_tasks, "collected": collected, "retry_count": retry_total,
-            "parallel_elapsed": elapsed, "events": events}
+            "parallel_elapsed": elapsed, "events": events, "collection_failures": failures}
 
 def _classify_incident_type(collected: list[dict]) -> str:
     text = " ".join(
@@ -94,11 +114,14 @@ async def replan_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
     """각 요청 시스템의 매뉴얼을 따로 확인하고 누락분을 한 라운드에 수집한다."""
     collected = state.get("collected", [])
     covered = {c.get("system_name") for c in collected if c["source"] == "runbook"}
-    missing = [name for name in state["registered_targets"] if name not in covered]
+    failures = state.get("collection_failures", [])
+    blocked = {f["system_name"] for f in failures if f["source"] in ("monitoring", "runbook")}
+    missing = [name for name in state["registered_targets"] if name not in covered and name not in blocked]
     rounds = state.get("replan_rounds", 0)
     if not missing:
         return {"events": state["events"] + [
-            {"type": "ReplanCheck", "round": rounds, "is_sufficient": True}]}
+            {"type": "ReplanCheck", "round": rounds, "is_sufficient": not failures,
+             "collection_finished": True, "failed_systems": sorted(blocked)}]}
     if rounds >= 1:
         raise RuntimeError("매뉴얼 수집 누락: " + ", ".join(missing))
     gap_tasks = []

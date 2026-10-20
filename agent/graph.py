@@ -27,10 +27,10 @@ def _after_route(state: AgentState) -> str:
 
 def _after_replan_check(state: AgentState) -> str:
     last = state["events"][-1]
-    return "analysis" if last.get("is_sufficient") else "research"
+    return "analysis" if last.get("collection_finished") or last.get("is_sufficient") else "research"
 
 def _after_validate(state: AgentState) -> str:
-    return "finalize" if state.get("validation_passed") or state.get("validation_attempts", 0) >= 3 else "write"
+    return "finalize" if state.get("collection_failures") or state.get("validation_passed") or state.get("validation_attempts", 0) >= 3 else "write"
 
 def build_graph(deps: SupervisorDeps):
     g = StateGraph(AgentState)

@@ -31,6 +31,7 @@ def summarize(rows):
         "structured_numeric_fact_case_count": sum(r.get("numeric_match") is not None for r in rows),
         "unsafe_injected_draft_published_rate": rate(rows, "unsafe_published"),
         "failure_case_error_observed_rate": rate(rows, "expected_failure_observed"),
+        "failure_case_report_returned_rate": rate(rows, "failure_report_returned"),
         "elapsed_seconds_total": round(sum(r["elapsed_seconds"] for r in rows), 3)}
 
 
@@ -77,6 +78,8 @@ async def execute(fixture, source):
             "book_match": books == case["expected_books"] if case["expected_books"] and not case.get("fail_target") else None,
             "numeric_match":numeric, "unsafe_published": case["unsafe_marker"] in result.get("final", "") if case.get("unsafe_marker") else None,
             "expected_failure_observed": bool(error) if case.get("fail_target") else None,
+            "failure_report_returned": (not error and bool(result.get("final")) and any(f.get("system_name") == case["fail_target"] for f in result.get("collection_failures", []))) if case.get("fail_target") else None,
+            "collection_status": result.get("report", {}).get("collection", {}).get("status"),
             "called_targets":calls, "runbook_reads":reads, "runbooks_by_system":books,
             "elapsed_seconds":round(elapsed, 4), "validation_passed":result.get("validation_passed"),
             "validation_attempts":result.get("validation_attempts", 0), "error":error,

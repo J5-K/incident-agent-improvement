@@ -10,6 +10,8 @@ async def analysis_node(state: AgentState, deps: SupervisorDeps) -> dict:
     """Wave 6 보완 — needs_analysis=True가 정당한 경우(모델의 자기모순이 아니라
     실제로 패턴 비교가 필요하다고 판단한 경우)를 위한 실행 경로. gate가 살려둔
     agent=='analysis' task가 있을 때만 수집된 monitoring 결과들을 비교 분석한다."""
+    if state.get("collection_failures"):
+        return {"events": state["events"] + [{"type": "AnalysisSkipped", "reason": "자료 일부 조회 실패: 근거 없는 패턴 추정 생략"}]}
     tasks = state["tasks"]
     pending = [t for t in tasks if t["agent"] == "analysis" and t["status"] == "pending"]
     if not pending:

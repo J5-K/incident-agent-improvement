@@ -6,7 +6,7 @@ LABELS = {"met": "수치 조건 충족 / 실행 승인 아님", "not_met": "조�
           "unknown": "판단 불가 / 조치 권고 보류", "needs_confirmation": "추가 확인 필요 / 자동 실행 불가"}
 
 
-def build_report(proposal, collected, passed, attempts=0, issues=None):
+def build_report(proposal, collected, passed, attempts=0, issues=None, *, failures=None, targets=None):
     records = evidence_index(collected)
     report = {"schema_version": 1, "verification": {"passed": passed, "attempts": attempts,
         "issues": issues or [], "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"},
@@ -29,6 +29,11 @@ def build_report(proposal, collected, passed, attempts=0, issues=None):
                 report["condition_checks"].append({"system_name": source["system_name"], "runbook_source": source["source_id"],
                     "step": str(policy["step"]), **action_condition(source, policy["step"], mon)})
         report["sources"].append(ref)
+    failures = failures or []
+    observed = {f["system_name"] for f in report["facts"]}
+    report["collection"] = {"status": ("partial" if observed else "failed") if failures else "complete",
+        "requested_targets": targets or sorted(observed), "failed_tasks": failures,
+        "limitation": "실패 대상·매뉴얼을 포함한 원인 추정과 조치 제안은 제공하지 않습니다." if failures else None}
     if passed:
         for row in proposal["systems"]:
             report["hypotheses"].append({"system_name": row["system_name"], "text": CAUSES[row["cause"]],
@@ -50,8 +55,14 @@ def metric(value):
 
 def render_report(report):
     v = report["verification"]
+    collection = report.get("collection", {"status": "complete", "failed_tasks": []})
     lines = ["[출처·조건 검증 완료]" if v["passed"] else "[검증 미통과 — 확인된 사실만 제공]",
              f"작성 시도 {v['attempts']}회 / {v['scope']}", "", "1) 확인된 사실"]
+    if collection["status"] != "complete":
+        lines[0] = "[조사 일부 실패 — 확보된 사실만 제공]" if collection["status"] == "partial" else "[조사 실패 — 확보된 모니터링 정보 없음]"
+        lines[1] = "원인·조치 제안 생성 및 검증 미수행 / 조회 실패 후 결과 보존"
+    if not report["facts"]:
+        lines.append("- 확보된 모니터링 정보가 없습니다. 정상 상태로 판단하지 않습니다.")
     for fact in report["facts"]:
         lines.append(f"- {fact['system_name']}: 상태={fact['status']}, CPU {metric(fact['cpu_percent'])}, 메모리 {metric(fact['memory_percent'])} [{fact['source_id']}]")
         lines.append("  원본 경고(현재 수치와 별개이며 시점 미확인): " + ("; ".join(fact["alerts"]) or "없음"))
@@ -69,6 +80,12 @@ def render_report(report):
                 lines.append(f"- {check['system_name']}: {LABELS[check['status']]} / {check['reason']} [{check['runbook_source']} #{check['step']}]")
     else:
         lines += ["", "원인 추정·권고안은 검증되지 않아 제공하지 않습니다.", "검증 사유: " + " / ".join(v["issues"])]
+    if collection["failed_tasks"]:
+        lines += ["", "조회 실패 대상 및 분석 한계"]
+        for failure in collection["failed_tasks"]:
+            lines.append(f"- {failure['system_name']}: {failure['source']} / {failure['target']} 조회 실패 ({failure['error_type']}). {failure['reason']}")
+        lines.append(collection["limitation"])
+        lines.append("성공한 조회 결과는 보존했습니다. 재요청 전 실패한 도구·연결 상태를 확인하세요.")
     lines += ["", "4) 참고 출처"]
     for s in report["sources"]:
         if s["kind"] == "monitoring":

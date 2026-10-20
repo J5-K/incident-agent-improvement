@@ -10,6 +10,9 @@ from ..reporting import build_report, render_report
 @traceable(name="write_node")
 async def write_node(state: AgentState, deps: SupervisorDeps) -> dict:
     """Collect an untrusted JSON proposal; only validated reports reach the UI."""
+    if state.get("collection_failures"):
+        return {"draft": "", "last_prompt": None,
+                "events": state["events"] + [{"type": "DraftSkipped", "reason": "자료 조회 실패: 확보된 사실만 제공"}]}
     attempt = state.get("validation_attempts", 0) + 1
     draft, usage = await deps.quality_llm.write(
         state["query"], state.get("collected", []),
@@ -23,6 +26,10 @@ async def write_node(state: AgentState, deps: SupervisorDeps) -> dict:
 @traceable(name="validate_node")
 async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
     """Validate the closed proposal; three failures never become approval."""
+    if state.get("collection_failures"):
+        return {"validation_attempts": 0, "validation_passed": False, "validated_proposal": {},
+                "validation_feedback": None, "validation_issues": ["자료 조회 실패로 원인·조치 제안 검증을 수행하지 않았습니다."],
+                "events": state["events"] + [{"type": "Validation", "attempt": 0, "verdict": "미수행", "skipped": True}]}
     attempts = state.get("validation_attempts", 0) + 1
     proposal, issues = validate_proposal(state["draft"], state.get("collected", []), state.get("registered_targets", []))
     passed = not issues
@@ -37,8 +44,10 @@ async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
 async def finalize_node(state: AgentState, deps: SupervisorDeps) -> dict:
     passed = state.get("validation_passed", False)
     report = build_report(state.get("validated_proposal", {}), state.get("collected", []),
-                          passed, state.get("validation_attempts", 0), state.get("validation_issues", []))
+                          passed, state.get("validation_attempts", 0), state.get("validation_issues", []),
+                          failures=state.get("collection_failures", []), targets=state.get("registered_targets", []))
     return {"final": render_report(report), "report": report,
             "events": state["events"] + [{"type": "ReportReady", "verified": passed,
-                "source_count": len(report["sources"]), "attempts": state.get("validation_attempts", 0)},
+                "source_count": len(report["sources"]), "attempts": state.get("validation_attempts", 0),
+                "collection_status": report["collection"]["status"]},
                 {"type": "Finalize", "pipeline": "incident-v2", "verified": passed}]}
