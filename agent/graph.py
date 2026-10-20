@@ -1,6 +1,6 @@
 """v2 Supervisor — 실제 langgraph.StateGraph (Wave 4·5·6·7·8·10b·15 통합).
 
-route → (chat 직행 | incident 파이프라인)
+target_check → (미등록 확인 안내 | route → chat/incident)
 incident: plan(MCP Prompt 절차 반영) → gate(권위 게이트) → research(가드+병렬+재시도)
           → replan_check(부족 시 gap task 후 재조사) → analysis(needs_analysis=True일 때만
           실제 실행) → write → validate(반려 시 재작성) → finalize
@@ -21,34 +21,23 @@ from langsmith import traceable
 
 from .deps import SupervisorDeps
 from .retry import with_retry
+from .targets import load_known_systems, resolve_targets
 
 
-def _load_known_systems() -> set[str]:
-    """ollama_llm.py/openai_llm.py와 동일한 소스(data/monitoring.json)에서
-    시스템 목록을 읽는다 — plan_node가 MCP Prompt에 넘길 system_name을
-    쿼리에서 멤버십 매칭으로 뽑아낼 때 쓴다."""
-    path = Path(__file__).resolve().parent.parent / "data" / "monitoring.json"
-    try:
-        return set(json.loads(path.read_text()).keys())
-    except (OSError, json.JSONDecodeError):
-        return {"auth-service", "web-01"}
-
-
-KNOWN_SYSTEMS = _load_known_systems()
+KNOWN_SYSTEMS = load_known_systems()
 
 
 def _extract_system_name(query: str) -> str:
-    """정규식 대신 실제 KNOWN_SYSTEMS 멤버십 매칭 — MCP Prompt(incident_analysis_
-    prompt)의 system_name은 "시스템: X" 한 줄짜리 컨텍스트라 항상 정해진 이름
-    중 하나로만 고정한다(여러 개 언급돼도 join하지 않음 — 실제 조사 대상 목록은
-    이후 plan()의 tasks가 별도로 결정). 쿼리에서 가장 먼저 등장하는 시스템을
-    고르고, 하나도 안 걸리면 가장 흔한 사례인 auth-service로 폴백."""
-    matches = [(query.index(s), s) for s in KNOWN_SYSTEMS if s in query]
-    return min(matches)[1] if matches else "auth-service"
+    targets, unknown = resolve_targets(query, KNOWN_SYSTEMS)
+    if unknown or not targets:
+        raise ValueError("A registered system must be confirmed before planning")
+    return targets[0]
 
 
 class AgentState(TypedDict, total=False):
     query: str
+    registered_targets: list[str]
+    unknown_targets: list[str]
     thread_id: str
     history: list[dict]
     route: str
@@ -70,6 +59,28 @@ class AgentState(TypedDict, total=False):
 
 def _cost(state: AgentState, usage: dict) -> float:
     return round(state.get("cost_usd", 0.0) + usage["usd"], 6)
+
+
+@traceable(name="target_check_node")
+async def target_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
+    targets, unknown = resolve_targets(state["query"], KNOWN_SYSTEMS)
+    return {"registered_targets": targets, "unknown_targets": unknown}
+
+
+@traceable(name="clarify_target_node")
+async def clarify_target_node(state: AgentState, deps: SupervisorDeps) -> dict:
+    unknown = state.get("unknown_targets", [])
+    if unknown:
+        message = f"등록되지 않은 시스템: {', '.join(unknown)}. 다른 시스템으로 대체 조회하지 않았습니다."
+        reason = "unknown_system"
+    else:
+        message = "조회할 시스템 이름을 알려주세요. 임의의 시스템을 대신 조회하지 않았습니다."
+        reason = "missing_system"
+    message += " 등록된 시스템: " + ", ".join(sorted(KNOWN_SYSTEMS)) + ". 정확한 시스템 이름을 포함해 다시 질문해 주세요."
+    return {"route": "clarification", "final": message, "tasks": [],
+            "events": state.get("events", []) + [
+                {"type": "TargetClarification", "reason": reason, "unknown_targets": unknown},
+                {"type": "Finalize", "pipeline": "target-clarification"}]}
 
 
 @traceable(name="route_node")
@@ -295,7 +306,9 @@ async def finalize_node(state: AgentState, deps: SupervisorDeps) -> dict:
 
 
 def _after_route(state: AgentState) -> str:
-    return "chat_answer" if state["route"] == "chat" else "plan"
+    if state["route"] == "chat":
+        return "chat_answer"
+    return "plan" if state.get("registered_targets") else "clarify_target"
 
 
 def _after_replan_check(state: AgentState) -> str:
@@ -310,6 +323,8 @@ def _after_validate(state: AgentState) -> str:
 def build_graph(deps: SupervisorDeps):
     g = StateGraph(AgentState)
     node = lambda fn: partial(fn, deps=deps)   # Wave 13 — 명시적 의존성 주입
+    g.add_node("target_check", node(target_check_node))
+    g.add_node("clarify_target", node(clarify_target_node))
     g.add_node("route", node(route_node))
     g.add_node("chat_answer", node(chat_answer_node))
     g.add_node("plan", node(plan_node))
@@ -321,9 +336,14 @@ def build_graph(deps: SupervisorDeps):
     g.add_node("validate", node(validate_node))
     g.add_node("finalize", node(finalize_node))
 
-    g.set_entry_point("route")
+    g.set_entry_point("target_check")
+    g.add_conditional_edges("target_check",
+                            lambda state: "clarify_target" if state.get("unknown_targets") else "route",
+                            {"clarify_target": "clarify_target", "route": "route"})
+    g.add_edge("clarify_target", END)
     g.add_conditional_edges("route", _after_route,
-                            {"chat_answer": "chat_answer", "plan": "plan"})
+                            {"chat_answer": "chat_answer", "plan": "plan",
+                             "clarify_target": "clarify_target"})
     g.add_edge("chat_answer", END)
     g.add_edge("plan", "gate")
     g.add_edge("gate", "research")
