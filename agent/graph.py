@@ -20,7 +20,8 @@ from langsmith import traceable
 from .deps import SupervisorDeps
 from .retry import with_retry
 from .targets import load_known_systems, resolve_targets
-from .evidence import writer_prompt, validate_proposal, render_checked
+from .evidence import validate_proposal
+from .reporting import build_report, render_report
 from .routing import should_promote_incident
 from .planning import reconcile_monitoring_tasks
 
@@ -52,6 +53,7 @@ class AgentState(TypedDict, total=False):
     draft: str
     validation_attempts: int
     validation_passed: bool
+    report: dict
     validated_proposal: dict
     validation_issues: list[str]
     validation_feedback: str
@@ -333,8 +335,12 @@ async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
 @traceable(name="finalize_node")
 async def finalize_node(state: AgentState, deps: SupervisorDeps) -> dict:
     passed = state.get("validation_passed", False)
-    return {"final": render_checked(state.get("validated_proposal", {}), state.get("collected", []), passed),
-            "events": state["events"] + [{"type": "Finalize", "pipeline": "incident-v2", "verified": passed}]}
+    report = build_report(state.get("validated_proposal", {}), state.get("collected", []),
+                          passed, state.get("validation_attempts", 0), state.get("validation_issues", []))
+    return {"final": render_report(report), "report": report,
+            "events": state["events"] + [{"type": "ReportReady", "verified": passed,
+                "source_count": len(report["sources"]), "attempts": state.get("validation_attempts", 0)},
+                {"type": "Finalize", "pipeline": "incident-v2", "verified": passed}]}
 
 
 def _after_route(state: AgentState) -> str:

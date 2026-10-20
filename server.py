@@ -116,6 +116,7 @@ def _metadata(result: dict, run_id: str | None) -> dict:
         "validation_attempts": result.get("validation_attempts", 0),
         "validation_passed": result.get("validation_passed"),
         "validation_issues": result.get("validation_issues", []),
+        "report": result.get("report"),
         "cost_usd": result.get("cost_usd", 0.0),
         "llm_backend": app.state.llm_backend,
         "supervisor_version": app.state.deps.version,
