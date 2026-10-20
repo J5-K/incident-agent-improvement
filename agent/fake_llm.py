@@ -111,13 +111,13 @@ class QualityLLM(FakeLLM):
             f"CPU {c['data']['cpu_percent']}% (알림 {len(c['data']['alerts'])}건)"
             for c in mon)
         lines = [f"'{query}' 진단 결과:", f"1) 모니터링: {summary}"]
-        if run:
-            body_lines = [l.strip() for l in run[0]["data"].strip().splitlines() if l.strip()]
+        for item in run:
+            body_lines = [l.strip() for l in item["data"].strip().splitlines() if l.strip()]
             title = body_lines[0].lstrip("# ")
             steps = [m.group(1) for l in body_lines[1:]
                      if (m := re.match(r"^\d+\.\s+(.*)", l))]
             advice = " ".join(steps[1:3]) or "표준 절차를 따라 조치하세요."
-            lines.append(f"2) 표준 절차: '{title}'에 따라 {advice}")
+            lines.append(f"2) {item.get('system_name', '대상 미지정')} 표준 절차: '{title}'에 따라 {advice}")
         lines.append("3) 정상화 확인 후 원인 분석과 재발 방지 대책을 문서화하세요.")
         draft = " ".join(lines)
         if on_token is not None:

@@ -9,10 +9,8 @@ incident: plan(MCP Prompt 절차 반영) → gate(권위 게이트) → research
 각 노드는 @traceable로 LangSmith에 계층 트리로 기록된다.
 """
 import asyncio
-import json
 import time
 from functools import partial
-from pathlib import Path
 from typing import Any, TypedDict
 
 from langgraph.config import get_stream_writer
@@ -22,6 +20,7 @@ from langsmith import traceable
 from .deps import SupervisorDeps
 from .retry import with_retry
 from .targets import load_known_systems, resolve_targets
+from .planning import reconcile_monitoring_tasks
 
 
 KNOWN_SYSTEMS = load_known_systems()
@@ -122,12 +121,18 @@ async def plan_node(state: AgentState, deps: SupervisorDeps) -> dict:
         server=prompt_server,
     )
     result, usage = deps.fast_llm.plan(state["query"], procedure)
-    targets = [t["target"] for t in result["tasks"]
-               if t["agent"] == "research" and t.get("target")]
-    event = {"type": "PlanCreated", "task_count": len(result["tasks"]),
+    targets = state["registered_targets"]
+    proposed_targets = [t.get("target") for t in result["tasks"]
+                        if t.get("agent") == "research"]
+    tasks = reconcile_monitoring_tasks(result["tasks"], targets)
+    reconciliation = {"type": "PlanReconciled",
+                      "added_targets": [t for t in targets if t not in proposed_targets],
+                      "removed_targets": list(dict.fromkeys(
+                          t for t in proposed_targets if t and t not in targets))}
+    event = {"type": "PlanCreated", "task_count": len(tasks),
              "targets": targets}
-    return {"tasks": result["tasks"], "needs_analysis": result["needs_analysis"],
-            "cost_usd": _cost(state, usage), "events": state["events"] + [event]}
+    return {"tasks": tasks, "needs_analysis": result["needs_analysis"],
+            "cost_usd": _cost(state, usage), "events": state["events"] + [reconciliation, event]}
 
 
 @traceable(name="gate_node")
@@ -188,10 +193,15 @@ async def research_node(state: AgentState, deps: SupervisorDeps) -> dict:
     events = list(state["events"])
     for r in results:
         new_tasks[r["idx"]]["status"] = "done"
-        collected.append({"source": r["source"], "data": r["data"]})
+        task = new_tasks[r["idx"]]
+        system_name = (task["target"] if r["source"] == "monitoring"
+                       else task["system_name"])
+        collected.append({"source": r["source"], "data": r["data"],
+                          "system_name": system_name})
         retry_total += r["retries"]
         events.append({"type": "TaskCompleted", "id": new_tasks[r["idx"]]["id"],
                        "source": r["source"], "target": new_tasks[r["idx"]]["target"],
+                       "system_name": system_name,
                        "retries": r["retries"]})
     return {"tasks": new_tasks, "collected": collected, "retry_count": retry_total,
             "parallel_elapsed": elapsed, "events": events}
@@ -226,18 +236,30 @@ def _classify_incident_type(collected: list[dict]) -> str:
 
 @traceable(name="replan_check_node")
 async def replan_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
-    """Wave 7 — 1차 수집 결과 평가. runbook이 없으면 gap task만 추가해 재조사."""
-    has_runbook = any(c["source"] == "runbook" for c in state.get("collected", []))
+    """각 요청 시스템의 매뉴얼을 따로 확인하고 누락분을 한 라운드에 수집한다."""
+    collected = state.get("collected", [])
+    covered = {c.get("system_name") for c in collected if c["source"] == "runbook"}
+    missing = [name for name in state["registered_targets"] if name not in covered]
     rounds = state.get("replan_rounds", 0)
-    if has_runbook or rounds >= 1:
-        verdict = {"type": "ReplanCheck", "round": rounds, "is_sufficient": True}
-        return {"events": state["events"] + [verdict]}
-    incident_type = _classify_incident_type(state.get("collected", []))
-    gap_task = {"id": "task-gap-runbook", "agent": "research", "kind": "runbook",
-                "target": incident_type, "status": "pending"}
+    if not missing:
+        return {"events": state["events"] + [
+            {"type": "ReplanCheck", "round": rounds, "is_sufficient": True}]}
+    if rounds >= 1:
+        raise RuntimeError("매뉴얼 수집 누락: " + ", ".join(missing))
+    gap_tasks = []
+    for i, name in enumerate(missing):
+        monitoring = [c for c in collected if c["source"] == "monitoring"
+                      and c["data"].get("system_name") == name]
+        if not monitoring:
+            raise RuntimeError("모니터링 수집 누락: " + name)
+        gap_tasks.append({"id": f"task-gap-runbook-{i}", "agent": "research",
+                          "kind": "runbook", "system_name": name,
+                          "target": _classify_incident_type(monitoring), "status": "pending"})
     verdict = {"type": "ReplanCheck", "round": rounds, "is_sufficient": False,
-               "gap_task": gap_task["id"], "target": incident_type}
-    return {"tasks": state["tasks"] + [gap_task], "replan_rounds": rounds + 1,
+               "target": gap_tasks[0]["target"],
+               "targets": [t["target"] for t in gap_tasks],
+               "systems": missing}
+    return {"tasks": state["tasks"] + gap_tasks, "replan_rounds": rounds + 1,
             "events": state["events"] + [verdict]}
 
 
@@ -284,16 +306,25 @@ async def write_node(state: AgentState, deps: SupervisorDeps) -> dict:
 
 @traceable(name="validate_node")
 async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
-    """Wave 8 — 코드 기준 검증: 30자 이상 + 절차 번호 포함이어야 합격."""
+    """형식과 복수 대상 이름 누락을 검사한다. 의미·수치의 정확성 검증은 별개다."""
     draft = state["draft"]
     attempts = state.get("validation_attempts", 0) + 1
-    ok = len(draft) >= 30 and "1)" in draft
+    missing_targets = [name for name in state.get("registered_targets", [])
+                       if len(state.get("registered_targets", [])) > 1
+                       and name.lower() not in draft.lower()]
+    ok = len(draft) >= 30 and "1)" in draft and not missing_targets
     verdict = "합격" if ok else "불합격"
     if not ok and attempts >= 3:   # 실모델 무한 재작성 방지 — 최대 3회 후 통과 처리
         ok, verdict = True, "합격(최대 시도 도달 — 통과 처리)"
-    feedback = None if ok else (
-        f"응답이 너무 짧습니다({len(draft)}자, 최소 30자). 절차를 1) 2) 3) 번호로 "
-        f"구체적으로 설명하세요.")
+    issues = []
+    if len(draft) < 30:
+        issues.append(f"응답이 너무 짧습니다({len(draft)}자, 최소 30자).")
+    if "1)" not in draft:
+        issues.append("절차를 1) 2) 3) 번호로 설명하세요.")
+    if missing_targets:
+        issues.append("누락된 시스템: " + ", ".join(missing_targets) +
+                      ". 각 시스템의 이름, 관측 상태, 해당 매뉴얼의 대응 절차를 포함하세요.")
+    feedback = None if ok else " ".join(issues)
     event = {"type": "Validation", "attempt": attempts, "verdict": verdict}
     return {"validation_attempts": attempts, "validation_feedback": feedback,
             "events": state["events"] + [event]}
@@ -301,8 +332,25 @@ async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
 
 @traceable(name="finalize_node")
 async def finalize_node(state: AgentState, deps: SupervisorDeps) -> dict:
-    return {"final": state["draft"],
-            "events": state["events"] + [{"type": "Finalize", "pipeline": "incident-v2"}]}
+    final = state["draft"]
+    # 재작성 한도 이후에도 빠진 대상은 관측 근거로만 보충한다.
+    missing = [name for name in state.get("registered_targets", [])
+               if len(state.get("registered_targets", [])) > 1
+               and name.lower() not in final.lower()]
+    for name in missing:
+        facts = [c for c in state.get("collected", []) if c.get("system_name") == name]
+        monitoring = next((c["data"] for c in facts if c["source"] == "monitoring"), None)
+        runbook = next((c["data"] for c in facts if c["source"] == "runbook"), "")
+        if monitoring:
+            final += (f"\n\n[누락 대상 근거 보충: {name}] 상태={monitoring['status']}, "
+                      f"CPU {monitoring['cpu_percent']}%, 알림={monitoring['alerts']}.")
+        if runbook:
+            final += "\n해당 시스템 대응 매뉴얼:\n" + runbook.strip()
+    events = state["events"]
+    if missing:
+        events += [{"type": "AnswerCoverageSupplemented", "systems": missing}]
+    return {"final": final,
+            "events": events + [{"type": "Finalize", "pipeline": "incident-v2"}]}
 
 
 def _after_route(state: AgentState) -> str:

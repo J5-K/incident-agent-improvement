@@ -116,12 +116,14 @@ const { createApp, ref, reactive, nextTick } = Vue;
 
 const STEP_LABELS = {
   TargetClarification: e => e.reason === "unknown_system" ? "미등록 시스템 → 이름 확인 필요" : "조사 대상 시스템 확인 필요",
+  PlanReconciled: e => e.added_targets?.length ? `누락된 조사 대상 보완: ${e.added_targets.join(', ')}` : null,
+  AnswerCoverageSupplemented: e => `답변 누락 대상 근거 보충: ${e.systems.join(', ')}`,
   PlanCreated: e => `계획 수립: 할 일 ${e.task_count}가지${e.targets?.length ? ` (시스템: ${e.targets.join(', ')})` : ''}`,
   GateApplied: e => e.removed_analysis_tasks ? `불필요한 작업 ${e.removed_analysis_tasks}건 제거` : null,
   TaskCompleted: e => (e.source === 'monitoring'
       ? `모니터링 지표 확인 (시스템: ${e.target})`
-      : `대응 매뉴얼(runbook) 조회 (장애유형: ${e.target})`) + (e.retries ? ' (재시도 성공)' : ''),
-  ReplanCheck: e => e.is_sufficient ? null : `정보 부족 → 장애유형 "${e.target}"로 추가 조사`,
+      : `대응 매뉴얼(runbook) 조회 (시스템: ${e.system_name || '미지정'}, 장애유형: ${e.target})`) + (e.retries ? ' (재시도 성공)' : ''),
+  ReplanCheck: e => e.is_sufficient ? null : `정보 부족 → 장애유형 "${e.targets?.join(', ') || e.target}"로 추가 조사`,
   DraftWritten: e => `답변 초안 작성 (시도 ${e.attempt})`,
   Validation: e => e.verdict === '합격' ? '검수 통과' : '검수 반려 → 다시 작성',
   Finalize: () => '최종 답변 완성',
