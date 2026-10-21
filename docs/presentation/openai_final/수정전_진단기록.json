@@ -1,0 +1,2489 @@
+{
+  "health": {
+    "runbook_search_mode": "rag",
+    "status": "ok",
+    "instance_id": 4456913488,
+    "creation_count": 1,
+    "supervisor_version": "v2",
+    "llm_backend": "openai",
+    "fast_llm": "openai:gpt-4o-mini",
+    "quality_llm": "openai:gpt-4o"
+  },
+  "cases": [
+    {
+      "id": "01",
+      "category": "직접 표현",
+      "question": "payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "seconds": 5.69,
+      "passed": true,
+      "books": [
+        "cpu-spike"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 97.0%, 메모리 58.0% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n2) 원인 추정 — 확정 사실 아님\n- payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- payments-service [runbook:payments-service:cpu-spike #3]: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 97.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류\n  참고 원문(즉시 실행 지시 아님): CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- payments-service: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 97.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 [runbook:payments-service:cpu-spike #3]\n\nRunbook 검색 결과\n- payments-service: cpu-spike (유사도 0.624)\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 2,
+            "targets": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "found",
+            "documents": [
+              "cpu-spike"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "cpu-spike",
+            "targets": [
+              "cpu-spike"
+            ],
+            "systems": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "cpu-spike",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisCompleted",
+            "length": 8
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 232
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 3,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.35,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 97.0,
+                "memory_percent": 58.0,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "payments-service",
+                "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+                "source_id": "monitoring:payments-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "payments-service",
+                "source_id": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "original_text": "CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 97.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              }
+            ],
+            "condition_checks": [
+              {
+                "system_name": "payments-service",
+                "runbook_source": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 97.0% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:payments-service:cpu-spike",
+                "system_name": "payments-service",
+                "kind": "runbook",
+                "title": "# Runbook: CPU 급증 대응 절차",
+                "uri": "runbook://incident-response/cpu-spike",
+                "server": "ops",
+                "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                "retrieval_score": 0.624339,
+                "indexed_sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "payments-service",
+                  "status": "found",
+                  "query": "CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.\nCPU 91% (threshold 80%); instance responding slow",
+                  "hits": [
+                    {
+                      "document_id": "cpu-spike",
+                      "incident_type": "cpu-spike",
+                      "title": "# Runbook: CPU 급증 대응 절차",
+                      "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                      "score": 0.624339
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "cpu-spike"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "payments-service CPU 사용률이 급증했어요  원인과 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "payments-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.003585,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce4-b573-7c25-9c13-1a9cd0b1dbc6"
+        }
+      }
+    },
+    {
+      "id": "02",
+      "category": "다른 표현",
+      "question": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "seconds": 3.6,
+      "passed": true,
+      "books": [
+        "cpu-spike"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 93.8%, 메모리 56.4% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n2) 원인 추정 — 확정 사실 아님\n- payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- payments-service [runbook:payments-service:cpu-spike #3]: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 93.8% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류\n  참고 원문(즉시 실행 지시 아님): CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- payments-service: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 93.8% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 [runbook:payments-service:cpu-spike #3]\n\nRunbook 검색 결과\n- payments-service: cpu-spike (유사도 0.624)\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 1,
+            "targets": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "found",
+            "documents": [
+              "cpu-spike"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "cpu-spike",
+            "targets": [
+              "cpu-spike"
+            ],
+            "systems": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "cpu-spike",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "analysis task 0개"
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 232
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 2,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 93.8,
+                "memory_percent": 56.4,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "payments-service",
+                "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+                "source_id": "monitoring:payments-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "payments-service",
+                "source_id": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "original_text": "CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 93.8% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              }
+            ],
+            "condition_checks": [
+              {
+                "system_name": "payments-service",
+                "runbook_source": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 93.8% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:payments-service:cpu-spike",
+                "system_name": "payments-service",
+                "kind": "runbook",
+                "title": "# Runbook: CPU 급증 대응 절차",
+                "uri": "runbook://incident-response/cpu-spike",
+                "server": "ops",
+                "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                "retrieval_score": 0.624339,
+                "indexed_sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "payments-service",
+                  "status": "found",
+                  "query": "프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.\nCPU 91% (threshold 80%); instance responding slow",
+                  "hits": [
+                    {
+                      "document_id": "cpu-spike",
+                      "incident_type": "cpu-spike",
+                      "title": "# Runbook: CPU 급증 대응 절차",
+                      "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                      "score": 0.624339
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "cpu-spike"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요  현재 상태와 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "payments-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.003597,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce4-cbaa-75c0-8662-ba988f472910"
+        }
+      }
+    },
+    {
+      "id": "03",
+      "category": "메모리",
+      "question": "cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "seconds": 3.43,
+      "passed": true,
+      "books": [
+        "memory-leak"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- cache-service: 상태=degraded, CPU 46.6%, 메모리 91.3% [monitoring:cache-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): memory usage climbing steadily over 6h; heap near limit\n\n2) 원인 추정 — 확정 사실 아님\n- cache-service: 메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다. [monitoring:cache-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- cache-service [runbook:cache-service:memory-leak #2]: 수치 조건 충족 / 실행 승인 아님 / memory_percent 91.3% >= 90%: 수치 조건 충족\n  참고 원문(즉시 실행 지시 아님): OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- cache-service: 수치 조건 충족 / 실행 승인 아님 / memory_percent 91.3% >= 90%: 수치 조건 충족 [runbook:cache-service:memory-leak #2]\n\nRunbook 검색 결과\n- cache-service: memory-leak (유사도 0.586)\n\n4) 참고 출처\n- [monitoring:cache-service] MCP Tool get_monitoring_status / 대상 cache-service\n- [runbook:cache-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 1,
+            "targets": [
+              "cache-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "cache-service",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "cache-service",
+            "status": "found",
+            "documents": [
+              "memory-leak"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "memory-leak",
+            "targets": [
+              "memory-leak"
+            ],
+            "systems": [
+              "cache-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "memory-leak",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "analysis task 0개"
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 212
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 2,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "cache-service",
+                "status": "degraded",
+                "cpu_percent": 46.6,
+                "memory_percent": 91.3,
+                "alerts": [
+                  "memory usage climbing steadily over 6h",
+                  "heap near limit"
+                ],
+                "source_id": "monitoring:cache-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "cache-service",
+                "text": "메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다.",
+                "source_id": "monitoring:cache-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "cache-service",
+                "source_id": "runbook:cache-service:memory-leak",
+                "step": "2",
+                "original_text": "OOM 직전(90% 이상)이면 해당 프로세스를 즉시 재시작해 서비스 중단을 막는다 — 재시작은 임시 조치일 뿐임을 기록해둔다.",
+                "status": "met",
+                "reason": "memory_percent 91.3% >= 90%: 수치 조건 충족"
+              }
+            ],
+            "condition_checks": [
+              {
+                "system_name": "cache-service",
+                "runbook_source": "runbook:cache-service:memory-leak",
+                "step": "2",
+                "status": "met",
+                "reason": "memory_percent 91.3% >= 90%: 수치 조건 충족"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:cache-service",
+                "system_name": "cache-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:cache-service:memory-leak",
+                "system_name": "cache-service",
+                "kind": "runbook",
+                "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                "uri": "runbook://incident-response/memory-leak",
+                "server": "ops",
+                "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                "retrieval_score": 0.585714,
+                "indexed_sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "cache-service",
+                  "status": "found",
+                  "query": "메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.\nmemory usage climbing steadily over 6h; heap near limit",
+                  "hits": [
+                    {
+                      "document_id": "memory-leak",
+                      "incident_type": "memory-leak",
+                      "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                      "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                      "score": 0.585714
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "memory-leak"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "cache-service 메모리 사용량이 계속 늘어나요  원인과 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "cache-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.0036,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce4-d9bc-7a71-9e59-c76a9230bedd"
+        }
+      }
+    },
+    {
+      "id": "04",
+      "category": "다른 표현",
+      "question": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "seconds": 5.12,
+      "passed": true,
+      "books": [
+        "memory-leak"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- cache-service: 상태=degraded, CPU 41.6%, 메모리 88.8% [monitoring:cache-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): memory usage climbing steadily over 6h; heap near limit\n\n2) 원인 추정 — 확정 사실 아님\n- cache-service: 메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다. [monitoring:cache-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- cache-service [runbook:cache-service:memory-leak #1]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- cache-service: 조건 미충족 / 조치 권고 보류 / memory_percent 88.8% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류 [runbook:cache-service:memory-leak #2]\n\nRunbook 검색 결과\n- cache-service: memory-leak (유사도 0.586)\n\n4) 참고 출처\n- [monitoring:cache-service] MCP Tool get_monitoring_status / 대상 cache-service\n- [runbook:cache-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 2,
+            "targets": [
+              "cache-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "cache-service",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "cache-service",
+            "status": "found",
+            "documents": [
+              "memory-leak"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "memory-leak",
+            "targets": [
+              "memory-leak"
+            ],
+            "systems": [
+              "cache-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "memory-leak",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisCompleted",
+            "length": 8
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 227
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 3,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "cache-service",
+                "status": "degraded",
+                "cpu_percent": 41.6,
+                "memory_percent": 88.8,
+                "alerts": [
+                  "memory usage climbing steadily over 6h",
+                  "heap near limit"
+                ],
+                "source_id": "monitoring:cache-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "cache-service",
+                "text": "메모리 증가 또는 누수 가능성. 힙 분석 등 추가 확인이 필요합니다.",
+                "source_id": "monitoring:cache-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "cache-service",
+                "source_id": "runbook:cache-service:memory-leak",
+                "step": "1",
+                "original_text": "get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.",
+                "status": "needs_confirmation",
+                "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+              }
+            ],
+            "condition_checks": [
+              {
+                "system_name": "cache-service",
+                "runbook_source": "runbook:cache-service:memory-leak",
+                "step": "2",
+                "status": "not_met",
+                "reason": "memory_percent 88.8% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:cache-service",
+                "system_name": "cache-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:cache-service:memory-leak",
+                "system_name": "cache-service",
+                "kind": "runbook",
+                "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                "uri": "runbook://incident-response/memory-leak",
+                "server": "ops",
+                "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                "retrieval_score": 0.585714,
+                "indexed_sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "cache-service",
+                  "status": "found",
+                  "query": "가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.\nmemory usage climbing steadily over 6h; heap near limit",
+                  "hits": [
+                    {
+                      "document_id": "memory-leak",
+                      "incident_type": "memory-leak",
+                      "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                      "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                      "score": 0.585714
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "memory-leak"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요  점검 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "cache-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.003687,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce4-e721-7232-aa0f-18a7a4ebaaf7"
+        }
+      }
+    },
+    {
+      "id": "05",
+      "category": "디스크",
+      "question": "log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "disk-full"
+      ],
+      "seconds": 3.52,
+      "passed": true,
+      "books": [
+        "disk-full"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- log-service: 상태=degraded, CPU 17.9%, 메모리 33.9% [monitoring:log-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): disk usage 95% on /var/log; disk space low\n\n2) 원인 추정 — 확정 사실 아님\n- log-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:log-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- log-service [runbook:log-service:disk-full #2]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): 로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.\n\nRunbook 검색 결과\n- log-service: disk-full (유사도 0.573)\n\n4) 참고 출처\n- [monitoring:log-service] MCP Tool get_monitoring_status / 대상 log-service\n- [runbook:log-service:disk-full] # Runbook: 디스크 용량 부족 대응 절차 / MCP Resource runbook://incident-response/disk-full / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 1,
+            "targets": [
+              "log-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "log-service",
+            "system_name": "log-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "log-service",
+            "status": "found",
+            "documents": [
+              "disk-full"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "disk-full",
+            "targets": [
+              "disk-full"
+            ],
+            "systems": [
+              "log-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "disk-full",
+            "system_name": "log-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "analysis task 0개"
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 217
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 2,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "log-service",
+                "status": "degraded",
+                "cpu_percent": 17.9,
+                "memory_percent": 33.9,
+                "alerts": [
+                  "disk usage 95% on /var/log",
+                  "disk space low"
+                ],
+                "source_id": "monitoring:log-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "log-service",
+                "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+                "source_id": "monitoring:log-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "log-service",
+                "source_id": "runbook:log-service:disk-full",
+                "step": "2",
+                "original_text": "로그 파일, 임시 파일, 오래된 백업처럼 안전하게 지울 수 있는 항목부터 정리해 여유 공간을 즉시 확보한다.",
+                "status": "needs_confirmation",
+                "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+              }
+            ],
+            "condition_checks": [],
+            "sources": [
+              {
+                "id": "monitoring:log-service",
+                "system_name": "log-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:log-service:disk-full",
+                "system_name": "log-service",
+                "kind": "runbook",
+                "title": "# Runbook: 디스크 용량 부족 대응 절차",
+                "uri": "runbook://incident-response/disk-full",
+                "server": "ops",
+                "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+                "retrieval_score": 0.573236,
+                "indexed_sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "log-service",
+                  "status": "found",
+                  "query": "그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.\ndisk usage 95% on /var/log; disk space low",
+                  "hits": [
+                    {
+                      "document_id": "disk-full",
+                      "incident_type": "disk-full",
+                      "title": "# Runbook: 디스크 용량 부족 대응 절차",
+                      "sha256": "72b9d4f006490887ccba981531129e5a42c0d7b8c789208db391fdc5acc566c7",
+                      "score": 0.573236
+                    }
+                  ],
+                  "scope": {
+                    "included": [],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "log-service 로그를 저장할 공간이 부족해요  현재 상태와 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "log-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.003465,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce4-fb1f-79c3-9349-0b0e7b773a66"
+        }
+      }
+    },
+    {
+      "id": "06",
+      "category": "네트워크",
+      "question": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "network-timeout"
+      ],
+      "seconds": 3.27,
+      "passed": false,
+      "books": [
+        "network-timeout"
+      ],
+      "response": {
+        "reply": "[적합한 매뉴얼 근거 부족 — 확보된 사실만 제공]\n원인·조치 제안 생성 및 검증 미수행 / 수집·검색 한계로 확보된 사실만 제공\n\n1) 확인된 사실\n- gateway-service: 상태=degraded, CPU 33.7%, 메모리 46.9% [monitoring:gateway-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): upstream timeout to payments-service (504); network packet loss 3%\n- payments-service: 상태=degraded, CPU 90.3%, 메모리 54.6% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n원인 추정·권고안은 검증되지 않아 제공하지 않습니다.\n검증 사유: 자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다.\n\nRunbook 검색 결과\n- gateway-service: 적합한 문서 없음 — 기본 매뉴얼로 대체하지 않음\n- payments-service: network-timeout (유사도 0.625)\n매뉴얼 근거가 부족한 대상: gateway-service. 증상을 구체화하거나 운영자가 매뉴얼을 확인해야 합니다.\n\n4) 참고 출처\n- [monitoring:gateway-service] MCP Tool get_monitoring_status / 대상 gateway-service\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [runbook:payments-service:network-timeout] # Runbook: 네트워크 타임아웃 대응 절차 / MCP Resource runbook://incident-response/network-timeout / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 2,
+            "targets": [
+              "gateway-service",
+              "payments-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "gateway-service",
+            "system_name": "gateway-service",
+            "retries": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-1",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "gateway-service",
+            "status": "no_match",
+            "documents": []
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "found",
+            "documents": [
+              "network-timeout"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "network-timeout",
+            "targets": [
+              "network-timeout"
+            ],
+            "systems": [
+              "gateway-service",
+              "payments-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "network-timeout",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": false,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "자료 수집·매뉴얼 근거 부족: 근거 없는 패턴 추정 생략"
+          },
+          {
+            "type": "DraftSkipped",
+            "reason": "자료 조회 실패·매뉴얼 근거 부족: 확보된 사실만 제공"
+          },
+          {
+            "type": "Validation",
+            "attempt": 0,
+            "verdict": "미수행",
+            "skipped": true
+          },
+          {
+            "type": "ReportReady",
+            "verified": false,
+            "source_count": 3,
+            "attempts": 0,
+            "collection_status": "insufficient"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": false
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 3,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 0,
+          "validation_passed": false,
+          "validation_issues": [
+            "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+          ],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": false,
+              "attempts": 0,
+              "issues": [
+                "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+              ],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "gateway-service",
+                "status": "degraded",
+                "cpu_percent": 33.7,
+                "memory_percent": 46.9,
+                "alerts": [
+                  "upstream timeout to payments-service (504)",
+                  "network packet loss 3%"
+                ],
+                "source_id": "monitoring:gateway-service"
+              },
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 90.3,
+                "memory_percent": 54.6,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              }
+            ],
+            "hypotheses": [],
+            "recommendations": [],
+            "condition_checks": [],
+            "sources": [
+              {
+                "id": "monitoring:gateway-service",
+                "system_name": "gateway-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:payments-service:network-timeout",
+                "system_name": "payments-service",
+                "kind": "runbook",
+                "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+                "uri": "runbook://incident-response/network-timeout",
+                "server": "ops",
+                "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+                "retrieval_score": 0.624802,
+                "indexed_sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "gateway-service",
+                  "status": "no_match",
+                  "query": "upstream timeout to  (504); network packet loss 3%",
+                  "hits": [],
+                  "scope": {
+                    "included": [],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "gateway-service에서"
+                  },
+                  "missing": []
+                },
+                {
+                  "system_name": "payments-service",
+                  "status": "found",
+                  "query": "가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.\nCPU 91% (threshold 80%); instance responding slow",
+                  "hits": [
+                    {
+                      "document_id": "network-timeout",
+                      "incident_type": "network-timeout",
+                      "title": "# Runbook: 네트워크 타임아웃 대응 절차",
+                      "sha256": "ed68d1bc775138e7e66cfb50698949856bf27d5e11afefff6e5826223e063596",
+                      "score": 0.624802
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "network-timeout"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "payments-service로 가는 요청이 타임아웃 나고 있어요  원인과 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": [
+                "gateway-service"
+              ]
+            },
+            "collection": {
+              "status": "insufficient",
+              "requested_targets": [
+                "gateway-service",
+                "payments-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 8.1e-05,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-08e4-7c37-b849-736fc63670bf"
+        }
+      }
+    },
+    {
+      "id": "07",
+      "category": "응답 지연",
+      "question": "auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "high-latency"
+      ],
+      "seconds": 3.3,
+      "passed": true,
+      "books": [
+        "high-latency"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- auth-service: 상태=degraded, CPU 77.0%, 메모리 60.5% [monitoring:auth-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): p95 latency 2.4s (threshold 1.0s); connection pool 92% used\n\n2) 원인 추정 — 확정 사실 아님\n- auth-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:auth-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- auth-service [runbook:auth-service:high-latency #2]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다.\n\nRunbook 검색 결과\n- auth-service: high-latency (유사도 0.528)\n\n4) 참고 출처\n- [monitoring:auth-service] MCP Tool get_monitoring_status / 대상 auth-service\n- [runbook:auth-service:high-latency] # Runbook: 응답 지연(High Latency) 대응 절차 / MCP Resource runbook://incident-response/high-latency / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 1,
+            "targets": [
+              "auth-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "auth-service",
+            "system_name": "auth-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "auth-service",
+            "status": "found",
+            "documents": [
+              "high-latency"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "high-latency",
+            "targets": [
+              "high-latency"
+            ],
+            "systems": [
+              "auth-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "high-latency",
+            "system_name": "auth-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "analysis task 0개"
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 223
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 2,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 2,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "auth-service",
+                "status": "degraded",
+                "cpu_percent": 77.0,
+                "memory_percent": 60.5,
+                "alerts": [
+                  "p95 latency 2.4s (threshold 1.0s)",
+                  "connection pool 92% used"
+                ],
+                "source_id": "monitoring:auth-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "auth-service",
+                "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+                "source_id": "monitoring:auth-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "auth-service",
+                "source_id": "runbook:auth-service:high-latency",
+                "step": "2",
+                "original_text": "커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다.",
+                "status": "needs_confirmation",
+                "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+              }
+            ],
+            "condition_checks": [],
+            "sources": [
+              {
+                "id": "monitoring:auth-service",
+                "system_name": "auth-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:auth-service:high-latency",
+                "system_name": "auth-service",
+                "kind": "runbook",
+                "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+                "uri": "runbook://incident-response/high-latency",
+                "server": "ops",
+                "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+                "retrieval_score": 0.52846,
+                "indexed_sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "auth-service",
+                  "status": "found",
+                  "query": "그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.\np95 latency 2.4s (threshold 1.0s); connection pool 92% used",
+                  "hits": [
+                    {
+                      "document_id": "high-latency",
+                      "incident_type": "high-latency",
+                      "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+                      "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+                      "score": 0.52846
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "high-latency"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "auth-service 로그인 응답이 느려요  현재 상태와 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "auth-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.003624,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-15ae-7150-b819-0e2ef9bc4ff1"
+        }
+      }
+    },
+    {
+      "id": "08",
+      "category": "여러 시스템",
+      "question": "payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "seconds": 2.72,
+      "passed": false,
+      "books": [
+        "high-latency",
+        "memory-leak"
+      ],
+      "response": {
+        "reply": "[적합한 매뉴얼 근거 부족 — 확보된 사실만 제공]\n원인·조치 제안 생성 및 검증 미수행 / 수집·검색 한계로 확보된 사실만 제공\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 92.5%, 메모리 55.8% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n- cache-service: 상태=degraded, CPU 46.0%, 메모리 91.0% [monitoring:cache-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): memory usage climbing steadily over 6h; heap near limit\n\n원인 추정·권고안은 검증되지 않아 제공하지 않습니다.\n검증 사유: 자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다.\n\nRunbook 검색 결과\n- payments-service: 적합한 문서 없음 — 기본 매뉴얼로 대체하지 않음\n- cache-service: memory-leak (유사도 0.443), high-latency (유사도 0.443)\n매뉴얼 근거가 부족한 대상: payments-service. 증상을 구체화하거나 운영자가 매뉴얼을 확인해야 합니다.\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [monitoring:cache-service] MCP Tool get_monitoring_status / 대상 cache-service\n- [runbook:cache-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops\n- [runbook:cache-service:high-latency] # Runbook: 응답 지연(High Latency) 대응 절차 / MCP Resource runbook://incident-response/high-latency / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 2,
+            "targets": [
+              "payments-service",
+              "cache-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-1",
+            "source": "monitoring",
+            "target": "cache-service",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "no_match",
+            "documents": []
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "cache-service",
+            "status": "found",
+            "documents": [
+              "memory-leak",
+              "high-latency"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "memory-leak",
+            "targets": [
+              "memory-leak",
+              "high-latency"
+            ],
+            "systems": [
+              "payments-service",
+              "cache-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "memory-leak",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-1",
+            "source": "runbook",
+            "target": "high-latency",
+            "system_name": "cache-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": false,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "자료 수집·매뉴얼 근거 부족: 근거 없는 패턴 추정 생략"
+          },
+          {
+            "type": "DraftSkipped",
+            "reason": "자료 조회 실패·매뉴얼 근거 부족: 확보된 사실만 제공"
+          },
+          {
+            "type": "Validation",
+            "attempt": 0,
+            "verdict": "미수행",
+            "skipped": true
+          },
+          {
+            "type": "ReportReady",
+            "verified": false,
+            "source_count": 4,
+            "attempts": 0,
+            "collection_status": "insufficient"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": false
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 4,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 0,
+          "validation_passed": false,
+          "validation_issues": [
+            "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+          ],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": false,
+              "attempts": 0,
+              "issues": [
+                "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+              ],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 92.5,
+                "memory_percent": 55.8,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              },
+              {
+                "system_name": "cache-service",
+                "status": "degraded",
+                "cpu_percent": 46.0,
+                "memory_percent": 91.0,
+                "alerts": [
+                  "memory usage climbing steadily over 6h",
+                  "heap near limit"
+                ],
+                "source_id": "monitoring:cache-service"
+              }
+            ],
+            "hypotheses": [],
+            "recommendations": [],
+            "condition_checks": [
+              {
+                "system_name": "cache-service",
+                "runbook_source": "runbook:cache-service:memory-leak",
+                "step": "2",
+                "status": "met",
+                "reason": "memory_percent 91.0% >= 90%: 수치 조건 충족"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "monitoring:cache-service",
+                "system_name": "cache-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:cache-service:memory-leak",
+                "system_name": "cache-service",
+                "kind": "runbook",
+                "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                "uri": "runbook://incident-response/memory-leak",
+                "server": "ops",
+                "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                "retrieval_score": 0.442773,
+                "indexed_sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+              },
+              {
+                "id": "runbook:cache-service:high-latency",
+                "system_name": "cache-service",
+                "kind": "runbook",
+                "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+                "uri": "runbook://incident-response/high-latency",
+                "server": "ops",
+                "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+                "retrieval_score": 0.442577,
+                "indexed_sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "payments-service",
+                  "status": "no_match",
+                  "query": "CPU 91% (threshold 80%); instance responding slow",
+                  "hits": [],
+                  "scope": {
+                    "included": [],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "payments-service와"
+                  },
+                  "missing": []
+                },
+                {
+                  "system_name": "cache-service",
+                  "status": "found",
+                  "query": "상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.\nmemory usage climbing steadily over 6h; heap near limit",
+                  "hits": [
+                    {
+                      "document_id": "memory-leak",
+                      "incident_type": "memory-leak",
+                      "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                      "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                      "score": 0.442773
+                    },
+                    {
+                      "document_id": "high-latency",
+                      "incident_type": "high-latency",
+                      "title": "# Runbook: 응답 지연(High Latency) 대응 절차",
+                      "sha256": "0df4846e66993b0b9312327a3f51fe6de663d701c64c2c7c10a9e2c35e9e63a3",
+                      "score": 0.442577
+                    }
+                  ],
+                  "scope": {
+                    "included": [],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": [
+                "payments-service"
+              ]
+            },
+            "collection": {
+              "status": "insufficient",
+              "requested_targets": [
+                "payments-service",
+                "cache-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 7.7e-05,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-2293-7156-a6ca-97ae4dfc4d32"
+        }
+      }
+    },
+    {
+      "id": "09",
+      "category": "미등록 시스템",
+      "question": "billing-service 응답이 느려요. 원인 확인해주세요.",
+      "expected_runbooks": [],
+      "seconds": 0.02,
+      "passed": true,
+      "books": [],
+      "response": {
+        "reply": "등록되지 않은 시스템: billing-service. 다른 시스템으로 대체 조회하지 않았습니다. 등록된 시스템: auth-service, cache-service, gateway-service, log-service, payments-service, web-01. 정확한 시스템 이름을 포함해 다시 질문해 주세요.",
+        "events": [
+          {
+            "type": "TargetClarification",
+            "reason": "unknown_system",
+            "unknown_targets": [
+              "billing-service"
+            ]
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "target-clarification"
+          }
+        ],
+        "metadata": {
+          "route": "clarification",
+          "task_count": 0,
+          "gate_removed": 0,
+          "replan_rounds": 0,
+          "retry_count": 0,
+          "parallel_elapsed": null,
+          "validation_attempts": 0,
+          "validation_passed": null,
+          "validation_issues": [],
+          "report": null,
+          "collection_failures": [],
+          "cost_usd": 0.0,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-2d3c-7b4e-b27a-0241f8621f50"
+        }
+      }
+    },
+    {
+      "id": "10",
+      "category": "일반 대화",
+      "question": "안녕, 너는 누구야?",
+      "expected_runbooks": [],
+      "seconds": 1.91,
+      "passed": true,
+      "books": [],
+      "response": {
+        "reply": "안녕하세요! 저는 당신의 비서입니다. 도움이 필요하시면 말씀해 주세요.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "chat",
+            "original_route": "chat",
+            "reason": "model"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "chat-direct"
+          }
+        ],
+        "metadata": {
+          "route": "chat",
+          "task_count": 0,
+          "gate_removed": 0,
+          "replan_rounds": 0,
+          "retry_count": 0,
+          "parallel_elapsed": null,
+          "validation_attempts": 0,
+          "validation_passed": null,
+          "validation_issues": [],
+          "report": null,
+          "collection_failures": [],
+          "cost_usd": 3.6e-05,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-2d4c-780a-b19d-67c4e222410f"
+        }
+      }
+    },
+    {
+      "id": "A1",
+      "category": "추가 복합 증상",
+      "question": "payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "seconds": 4.54,
+      "passed": true,
+      "books": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "response": {
+        "reply": "[출처·조건 검증 완료]\n작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 98.6%, 메모리 58.8% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n2) 원인 추정 — 확정 사실 아님\n- payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service]\n\n3) 권장 점검·조건부 조치 — 실행은 운영자 판단\n- payments-service [runbook:payments-service:cpu-spike #3]: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 98.6% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류\n  참고 원문(즉시 실행 지시 아님): CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.\n- payments-service [runbook:payments-service:memory-leak #1]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요\n  참고 원문(즉시 실행 지시 아님): get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.\n\n수치 조건 대조(선택 단계와 별도로 표시)\n- payments-service: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 98.6% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 [runbook:payments-service:cpu-spike #3]\n- payments-service: 조건 미충족 / 조치 권고 보류 / memory_percent 58.8% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류 [runbook:payments-service:memory-leak #2]\n\nRunbook 검색 결과\n- payments-service: cpu-spike (유사도 0.624), memory-leak (유사도 0.586)\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n- [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops\n- [runbook:payments-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 2,
+            "targets": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "found",
+            "documents": [
+              "cpu-spike",
+              "memory-leak"
+            ]
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": false,
+            "target": "cpu-spike",
+            "targets": [
+              "cpu-spike",
+              "memory-leak"
+            ],
+            "systems": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-0",
+            "source": "runbook",
+            "target": "cpu-spike",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-gap-runbook-1",
+            "source": "runbook",
+            "target": "memory-leak",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 1,
+            "is_sufficient": true,
+            "collection_finished": true,
+            "failed_systems": []
+          },
+          {
+            "type": "AnalysisCompleted",
+            "length": 8
+          },
+          {
+            "type": "DraftWritten",
+            "attempt": 1,
+            "length": 341
+          },
+          {
+            "type": "Validation",
+            "attempt": 1,
+            "verdict": "합격",
+            "exhausted": false,
+            "issues": []
+          },
+          {
+            "type": "ReportReady",
+            "verified": true,
+            "source_count": 3,
+            "attempts": 1,
+            "collection_status": "complete"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": true
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 4,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 1,
+          "validation_passed": true,
+          "validation_issues": [],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": true,
+              "attempts": 1,
+              "issues": [],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 98.6,
+                "memory_percent": 58.8,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              }
+            ],
+            "hypotheses": [
+              {
+                "system_name": "payments-service",
+                "text": "부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다.",
+                "source_id": "monitoring:payments-service",
+                "confirmed": false
+              }
+            ],
+            "recommendations": [
+              {
+                "system_name": "payments-service",
+                "source_id": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "original_text": "CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다.",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 98.6% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              },
+              {
+                "system_name": "payments-service",
+                "source_id": "runbook:payments-service:memory-leak",
+                "step": "1",
+                "original_text": "get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다.",
+                "status": "needs_confirmation",
+                "reason": "매뉴얼의 선행 조건·운영자 확인 필요"
+              }
+            ],
+            "condition_checks": [
+              {
+                "system_name": "payments-service",
+                "runbook_source": "runbook:payments-service:cpu-spike",
+                "step": "3",
+                "status": "needs_confirmation",
+                "reason": "cpu_percent 98.6% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+              },
+              {
+                "system_name": "payments-service",
+                "runbook_source": "runbook:payments-service:memory-leak",
+                "step": "2",
+                "status": "not_met",
+                "reason": "memory_percent 58.8% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류"
+              }
+            ],
+            "sources": [
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              },
+              {
+                "id": "runbook:payments-service:cpu-spike",
+                "system_name": "payments-service",
+                "kind": "runbook",
+                "title": "# Runbook: CPU 급증 대응 절차",
+                "uri": "runbook://incident-response/cpu-spike",
+                "server": "ops",
+                "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                "retrieval_score": 0.624339,
+                "indexed_sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d"
+              },
+              {
+                "id": "runbook:payments-service:memory-leak",
+                "system_name": "payments-service",
+                "kind": "runbook",
+                "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                "uri": "runbook://incident-response/memory-leak",
+                "server": "ops",
+                "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                "retrieval_score": 0.585714,
+                "indexed_sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "payments-service",
+                  "status": "found",
+                  "query": "CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.\nCPU 91% (threshold 80%); instance responding slow",
+                  "hits": [
+                    {
+                      "document_id": "cpu-spike",
+                      "incident_type": "cpu-spike",
+                      "title": "# Runbook: CPU 급증 대응 절차",
+                      "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+                      "score": 0.624339
+                    },
+                    {
+                      "document_id": "memory-leak",
+                      "incident_type": "memory-leak",
+                      "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+                      "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+                      "score": 0.585714
+                    }
+                  ],
+                  "scope": {
+                    "included": [
+                      "cpu-spike",
+                      "memory-leak"
+                    ],
+                    "excluded": [],
+                    "unsupported": false,
+                    "positive": "payments-service의 CPU와 메모리 사용량이 모두 높아요  각각 원인과 대응 방법을 알려주세요"
+                  },
+                  "missing": []
+                }
+              ],
+              "unmatched_systems": []
+            },
+            "collection": {
+              "status": "complete",
+              "requested_targets": [
+                "payments-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 0.005563,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-34c9-7a23-8e89-cdc7c6325a1f"
+        }
+      }
+    },
+    {
+      "id": "A2",
+      "category": "추가 무관련·제외",
+      "question": "payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.",
+      "expected_runbooks": [],
+      "seconds": 2.14,
+      "passed": true,
+      "books": [],
+      "response": {
+        "reply": "- TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가\n- 요청에 따라 대응 제외: cpu-spike, high-latency, memory-leak\n\n[적합한 매뉴얼 근거 부족 — 확보된 사실만 제공]\n원인·조치 제안 생성 및 검증 미수행 / 수집·검색 한계로 확보된 사실만 제공\n\n1) 확인된 사실\n- payments-service: 상태=degraded, CPU 93.3%, 메모리 56.1% [monitoring:payments-service]\n  원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow\n\n원인 추정·권고안은 검증되지 않아 제공하지 않습니다.\n검증 사유: 자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다.\n\nRunbook 검색 결과\n- payments-service: 적합한 문서 없음 — 기본 매뉴얼로 대체하지 않음\n매뉴얼 근거가 부족한 대상: payments-service. 증상을 구체화하거나 운영자가 매뉴얼을 확인해야 합니다.\n\n4) 참고 출처\n- [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service\n\n추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다.",
+        "events": [
+          {
+            "type": "RouteDecided",
+            "route": "incident",
+            "original_route": "incident",
+            "reason": "model"
+          },
+          {
+            "type": "PlanReconciled",
+            "added_targets": [],
+            "removed_targets": []
+          },
+          {
+            "type": "PlanCreated",
+            "task_count": 1,
+            "targets": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "GateApplied",
+            "removed_analysis_tasks": 0
+          },
+          {
+            "type": "TaskCompleted",
+            "id": "task-monitoring-0",
+            "source": "monitoring",
+            "target": "payments-service",
+            "system_name": "payments-service",
+            "retries": 0
+          },
+          {
+            "type": "RunbookSearch",
+            "system_name": "payments-service",
+            "status": "no_match",
+            "documents": []
+          },
+          {
+            "type": "ReplanCheck",
+            "round": 0,
+            "is_sufficient": false,
+            "collection_finished": true,
+            "target": null,
+            "targets": [],
+            "systems": [
+              "payments-service"
+            ]
+          },
+          {
+            "type": "AnalysisSkipped",
+            "reason": "자료 수집·매뉴얼 근거 부족: 근거 없는 패턴 추정 생략"
+          },
+          {
+            "type": "DraftSkipped",
+            "reason": "자료 조회 실패·매뉴얼 근거 부족: 확보된 사실만 제공"
+          },
+          {
+            "type": "Validation",
+            "attempt": 0,
+            "verdict": "미수행",
+            "skipped": true
+          },
+          {
+            "type": "ReportReady",
+            "verified": false,
+            "source_count": 1,
+            "attempts": 0,
+            "collection_status": "insufficient"
+          },
+          {
+            "type": "Finalize",
+            "pipeline": "incident-v2",
+            "verified": false
+          }
+        ],
+        "metadata": {
+          "route": "incident",
+          "task_count": 1,
+          "gate_removed": 0,
+          "replan_rounds": 1,
+          "retry_count": 0,
+          "parallel_elapsed": 0.36,
+          "validation_attempts": 0,
+          "validation_passed": false,
+          "validation_issues": [
+            "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+          ],
+          "report": {
+            "schema_version": 1,
+            "verification": {
+              "passed": false,
+              "attempts": 0,
+              "issues": [
+                "자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다."
+              ],
+              "scope": "시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님"
+            },
+            "facts": [
+              {
+                "system_name": "payments-service",
+                "status": "degraded",
+                "cpu_percent": 93.3,
+                "memory_percent": 56.1,
+                "alerts": [
+                  "CPU 91% (threshold 80%)",
+                  "payments-service-3 instance responding slow"
+                ],
+                "source_id": "monitoring:payments-service"
+              }
+            ],
+            "hypotheses": [],
+            "recommendations": [],
+            "condition_checks": [],
+            "sources": [
+              {
+                "id": "monitoring:payments-service",
+                "system_name": "payments-service",
+                "kind": "monitoring",
+                "tool": "get_monitoring_status"
+              }
+            ],
+            "retrieval": {
+              "searches": [
+                {
+                  "system_name": "payments-service",
+                  "status": "no_match",
+                  "query": "TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.\nCPU 91% (threshold 80%); instance responding slow",
+                  "hits": [],
+                  "scope": {
+                    "included": [],
+                    "excluded": [
+                      "cpu-spike",
+                      "high-latency",
+                      "memory-leak"
+                    ],
+                    "unsupported": true,
+                    "positive": "payments-service의 TLS 인증서가 만료됐는지 조사해주세요"
+                  },
+                  "missing": [
+                    "TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가"
+                  ]
+                }
+              ],
+              "unmatched_systems": [
+                "payments-service"
+              ]
+            },
+            "collection": {
+              "status": "insufficient",
+              "requested_targets": [
+                "payments-service"
+              ],
+              "failed_tasks": [],
+              "limitation": null
+            }
+          },
+          "collection_failures": [],
+          "cost_usd": 8e-05,
+          "llm_backend": "openai",
+          "supervisor_version": "v2",
+          "instance_id": 4456913488,
+          "langsmith_run_id": "01a15ce5-4688-7058-ac83-11bf71258b9b"
+        }
+      }
+    }
+  ]
+}

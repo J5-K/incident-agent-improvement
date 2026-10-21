@@ -1,0 +1,13 @@
+﻿구분,번호,질문,기대 런북,결과,화면
+기준,01,payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.,cpu-spike,통과,01_요약.png
+기준,02,payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.,cpu-spike,통과,02_요약.png
+기준,03,cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.,memory-leak,통과,03_요약.png
+기준,04,cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.,memory-leak,통과,04_요약.png
+기준,05,log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.,disk-full,통과,05_요약.png
+기준,06,gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.,network-timeout,통과,06_요약.png
+기준,07,auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.,high-latency,통과,07_요약.png
+기준,08,payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.,"cpu-spike,memory-leak",통과,08_요약.png
+기준,09,billing-service 응답이 느려요. 원인 확인해주세요.,,통과,09_요약.png
+기준,10,"안녕, 너는 누구야?",,통과,10_요약.png
+추가,A1,payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.,"cpu-spike,memory-leak",통과,A1_요약.png
+추가,A2,payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.,,통과,A2_요약.png

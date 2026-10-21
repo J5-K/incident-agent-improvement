@@ -120,3 +120,8 @@ PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .ve
 적용: 실행 중인 백엔드를 중단하고 다시 실행한 뒤 브라우저를 새로고침한다. Ollama 자체를 재시작할 필요는 없다.
 
 최종 회귀 확인: 자동 테스트 **76개 통과**(추적 전송 비활성화), JavaScript 문법 검사 및 git diff 공백 검사 통과.
+
+
+## OpenAI 최종 검증 (2026-10-21)
+
+기존 기준 질문 10개를 원문 그대로 OpenAI(gpt-4o-mini/gpt-4o)로 재실행하고 추가 2개와 구분했다. 1차 6·8번에서 발견한 공통 서술 분리 오류와 OpenAI JSON 모드 연결 누락을 수정했다. 최종 기존 10/10, 추가 2/2의 기대 동작을 확인하고 캡처·근거 텍스트·결과표를 저장했다. 자동 테스트 81개 통과. RAG 임베딩은 Ollama이며, 과거 Ollama 실행과 최신 OpenAI 결과를 구분한다. [최종 발표 자료·검증 목록](../docs/presentation/openai_final/README.md) 참조. 전체 일반화 정확도·원인 확정·속도 개선율을 뜻하지 않는다.

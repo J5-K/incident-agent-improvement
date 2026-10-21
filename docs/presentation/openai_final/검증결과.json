@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-21",
+  "model": "OpenAI gpt-4o-mini / gpt-4o",
+  "embedding": "Ollama embeddinggemma:latest",
+  "cases": [
+    {
+      "id": "01",
+      "category": "직접 표현",
+      "question": "payments-service CPU 사용률이 급증했어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": null
+    },
+    {
+      "id": "02",
+      "category": "다른 표현",
+      "question": "payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 12.4
+    },
+    {
+      "id": "03",
+      "category": "메모리",
+      "question": "cache-service 메모리 사용량이 계속 늘어나요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 24.1
+    },
+    {
+      "id": "04",
+      "category": "다른 표현",
+      "question": "cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.",
+      "expected_runbooks": [
+        "memory-leak"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 17.2
+    },
+    {
+      "id": "05",
+      "category": "디스크",
+      "question": "log-service 로그를 저장할 공간이 부족해요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "disk-full"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 15.8
+    },
+    {
+      "id": "06",
+      "category": "네트워크",
+      "question": "gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "network-timeout"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 35.6
+    },
+    {
+      "id": "07",
+      "category": "응답 지연",
+      "question": "auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "high-latency"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 36.4
+    },
+    {
+      "id": "08",
+      "category": "여러 시스템",
+      "question": "payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 15.5
+    },
+    {
+      "id": "09",
+      "category": "미등록 시스템",
+      "question": "billing-service 응답이 느려요. 원인 확인해주세요.",
+      "expected_runbooks": [],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 0.7
+    },
+    {
+      "id": "10",
+      "category": "일반 대화",
+      "question": "안녕, 너는 누구야?",
+      "expected_runbooks": [],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 1.7
+    },
+    {
+      "id": "A1",
+      "category": "추가 복합 증상",
+      "question": "payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.",
+      "expected_runbooks": [
+        "cpu-spike",
+        "memory-leak"
+      ],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 11
+    },
+    {
+      "id": "A2",
+      "category": "추가 무관련·제외",
+      "question": "payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.",
+      "expected_runbooks": [],
+      "passed": true,
+      "ui_observed_seconds_upper_bound": 2.5
+    }
+  ],
+  "scope": "기존 10개 독립 대화, 추가 2개 독립 대화. UI 관측시간은 도구 대기 포함 상한이므로 성능 지표로 사용하지 않음. 교육용 수치 변동. 원인 확정 검증 아님."
+}

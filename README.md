@@ -37,3 +37,8 @@ PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .ve
 ### 최종 발표 자료
 
 [G073 김주오 발표 자료와 최신 실행 캡처](docs/presentation/README.md)에 5분 발표용 8장 PPTX·PDF·대본 및 대표 4사례 캡처 5장을 정리했습니다.
+
+
+## OpenAI 최종 검증 (2026-10-21)
+
+기존 기준 질문 10개를 원문 그대로 OpenAI(gpt-4o-mini/gpt-4o)로 재실행하고 추가 2개와 구분했다. 1차 6·8번에서 발견한 공통 서술 분리 오류와 OpenAI JSON 모드 연결 누락을 수정했다. 최종 기존 10/10, 추가 2/2의 기대 동작을 확인하고 캡처·근거 텍스트·결과표를 저장했다. 자동 테스트 81개 통과. RAG 임베딩은 Ollama이며, 과거 Ollama 실행과 최신 OpenAI 결과를 구분한다. [최종 발표 자료·검증 목록](docs/presentation/openai_final/README.md) 참조. 전체 일반화 정확도·원인 확정·속도 개선율을 뜻하지 않는다.

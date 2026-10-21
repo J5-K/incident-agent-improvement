@@ -1,0 +1,28 @@
+- banner: 운영 인시던트 대응 에이전트 openai 실모델(openai:gpt-4o-mini/openai:gpt-4o) · all_total_vue
+- generic: auth-service 로그인 응답이 느려요. 현재 상태와 대응 방법을 알려주세요.
+- generic: "✓ 계획 수립: 할 일 1가지 (시스템: auth-service)"
+- generic: "✓ 모니터링 지표 확인 (시스템: auth-service)"
+- generic: "✓ auth-service 의미 검색: high-latency"
+- generic: ✓ 정보 부족 → 장애유형 "high-latency"로 추가 조사
+- generic: "✓ 대응 매뉴얼(runbook) 조회 (시스템: auth-service, 장애유형: high-latency)"
+- generic: ✓ 답변 초안 작성 (시도 1)
+- generic: ✓ 출처·대상·조건 검사 통과
+- generic: ✓ 출처·조건 검사 완료 · 출처 2개 · 작성 1회
+- generic: ✓ 최종 답변 완성
+- heading "조사 완료 · 원인은 추가 확인 필요" [level=3]
+- heading "확인된 상태" [level=4]
+- paragraph:
+  - strong: auth-service
+  - text: CPU 77.9% · 메모리 60.9% · 상태 degraded
+- heading "원인 판단" [level=4]
+- paragraph: "auth-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다."
+- heading "우선 확인할 사항" [level=4]
+- list:
+  - text: "auth-service: 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다."
+  - text: 조건·승인 확인 전 실행하지 마세요. 매뉴얼의 선행 조건·운영자 확인 필요
+- generic "전체 조치 · 검색 결과 · 출처 · 검증 상세" [active]
+- generic: "[출처·조건 검증 완료] 작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님 1) 확인된 사실 - auth-service: 상태=degraded, CPU 77.9%, 메모리 60.9% [monitoring:auth-service] 원본 경고(현재 수치와 별개이며 시점 미확인): p95 latency 2.4s (threshold 1.0s); connection pool 92% used 2) 원인 추정 — 확정 사실 아님 - auth-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:auth-service] 3) 권장 점검·조건부 조치 — 실행은 운영자 판단 - auth-service [runbook:auth-service:high-latency #2]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요 참고 원문(즉시 실행 지시 아님): 커넥션 풀 사용률이 90%를 넘으면 풀 크기를 늘리거나 느린 쿼리/외부 호출에 타임아웃을 건다. Runbook 검색 결과 - auth-service: high-latency (유사도 0.528) 4) 참고 출처 - [monitoring:auth-service] MCP Tool get_monitoring_status / 대상 auth-service - [runbook:auth-service:high-latency] # Runbook: 응답 지연(High Latency) 대응 절차 / MCP Resource runbook://incident-response/high-latency / 서버 ops 추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다."
+- paragraph: 교육용 모니터링 데이터입니다. 현재 수치만으로 원인을 확정할 수 없습니다.
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

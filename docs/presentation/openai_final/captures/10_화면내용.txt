@@ -1,0 +1,7 @@
+- banner: 운영 인시던트 대응 에이전트 openai 실모델(openai:gpt-4o-mini/openai:gpt-4o) · all_total_vue
+- generic: 안녕, 너는 누구야?
+- generic: ✓ 최종 답변 완성
+- generic: 안녕하세요! 저는 당신의 비서입니다. 도움이 필요하시면 말씀해 주세요.
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

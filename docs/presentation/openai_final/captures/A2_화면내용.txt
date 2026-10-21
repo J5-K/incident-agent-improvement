@@ -1,0 +1,23 @@
+- banner: 운영 인시던트 대응 에이전트 openai 실모델(openai:gpt-4o-mini/openai:gpt-4o) · all_total_vue
+- generic: payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.
+- generic: "✓ 계획 수립: 할 일 1가지 (시스템: payments-service)"
+- generic: "✓ 모니터링 지표 확인 (시스템: payments-service)"
+- generic: "✓ payments-service 의미 검색: 적합한 매뉴얼 없음"
+- generic: ✓ 자료·매뉴얼 근거 부족 → 원인·조치 생성 생략
+- generic: ✓ 자료 부족 → 제안 검증 미수행
+- generic: ✓ 매뉴얼 근거 부족 · 사실 보고서 · 출처 1개 · 작성 0회
+- generic: ✓ 최종 답변 완성
+- heading "조사 한계 · 확인된 자료만 제공" [level=3]
+- paragraph: "TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가"
+- paragraph: "요청에 따라 대응 제외: CPU 급증, 응답 지연, 메모리 문제"
+- paragraph: 적합한 문서 없음 또는 요청 증상 일부 누락으로 원인·조치 제안을 보류했습니다.
+- heading "확인된 상태" [level=4]
+- paragraph:
+  - strong: payments-service
+  - text: CPU 94.6% · 메모리 56.8% · 상태 degraded
+- list
+- generic "전체 조치 · 검색 결과 · 출처 · 검증 상세" [active]
+- generic: "- TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가 - 요청에 따라 대응 제외: cpu-spike, high-latency, memory-leak [적합한 매뉴얼 근거 부족 — 확보된 사실만 제공] 원인·조치 제안 생성 및 검증 미수행 / 수집·검색 한계로 확보된 사실만 제공 1) 확인된 사실 - payments-service: 상태=degraded, CPU 94.6%, 메모리 56.8% [monitoring:payments-service] 원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow 원인 추정·권고안은 검증되지 않아 제공하지 않습니다. 검증 사유: 자료 조회 실패 또는 적합한 매뉴얼 없음으로 원인·조치 제안 검증을 수행하지 않았습니다. Runbook 검색 결과 - payments-service: 적합한 문서 없음 — 기본 매뉴얼로 대체하지 않음 매뉴얼 근거가 부족한 대상: payments-service. 증상을 구체화하거나 운영자가 매뉴얼을 확인해야 합니다. 4) 참고 출처 - [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service 추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다."
+- paragraph: 교육용 모니터링 데이터입니다. 현재 수치만으로 원인을 확정할 수 없습니다.
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"
