@@ -34,6 +34,77 @@ G073 김주오 · 과제 1 · 2026-10-21
 | 긴 본문과 대기 화면만으로 처리 상태를 알기 어려움 | 사용자가 지연과 실패를 구별하기 어려움 | 요약/상세 분리, 진행 시간과 지연·오류 안내 |
 | 그래프 구현이 한 파일에 모임 | 수정 영향과 처리 순서를 파악하기 어려움 | 노드 구현과 상태·검색·검증·보고서 공통 로직 분리 |
 
+### 2.1 어떤 질문에서 무엇을 확인했는가
+
+아래 02·04·06·08·09는 **기존 기준 질문의 번호**다. A1·A2는 개발 중 추가한 사례이고, 장애·오류를 강제로 넣은 테스트는 실모델 실행과 구분했다. “기대 효과”는 수정 목표이며, “확인 결과”는 실제 증거가 있는 범위만 적었다.
+
+#### ① 장애 표현을 일반 대화로 잘못 분류 — 기준 02
+
+- **실험 질문:** “payments-service에서 프로세서가 계속 바쁘고 처리가 밀려요. 현재 상태와 대응 방법을 알려주세요.”
+- **기존 결과:** 일반 대화로 처리돼 모니터링·런북 조사 없이 반복적인 문장을 응답했다.
+- **기대 효과:** “CPU 급증”이라는 단어가 없어도 같은 장애 증상으로 인식해 실제 조사로 연결하기.
+- **수정 방법:** [`agent/routing.py`](agent/routing.py)의 장애 표현 보완을 분류 노드에 연결했다. 모든 자연어 표현을 이해하도록 학습한 것은 아니다.
+- **확인 결과:** Ollama 1차 개선 후 CPU 조사 경로에 진입했고, 최종 OpenAI 02에서도 cpu-spike 런북을 확인했다.
+- **근거:** [개선 전](docs/before/02_CPU다른표현_일반대화오분류.png) / [Ollama 개선 후](<docs/after/02_다른 표현_완료.jpg>) / [최종 02](docs/final_validation/captures/02_요약.png).
+
+#### ② 여러 시스템 중 일부만 조사 — 기준 06·08
+
+- **실험 질문 06:** “gateway-service에서 payments-service로 가는 요청이 타임아웃 나고 있어요. 원인과 대응 방법을 알려주세요.”
+- **실험 질문 08:** “payments-service와 cache-service 상태를 각각 확인하고 필요한 대응 매뉴얼을 알려주세요.”
+- **기존 결과:** 06은 gateway만, 08은 payments만 조사했다. 질문에 나온 다른 시스템은 자료가 빠졌다.
+- **기대 효과:** 사용자가 요청한 시스템을 모두 조사하고 각 자료가 어느 시스템의 것인지 유지하기.
+- **수정 방법:** [`agent/targets.py`](agent/targets.py)로 대상 목록을 추출하고 [`agent/planning.py`](agent/planning.py)에서 계획의 조회 대상을 대조·보충했다. 이후 RAG에서 공통 문장을 시스템별로 잘못 잘라내는 오류도 발견해 [`runbook_search.py`](agent/runbook_search.py)의 공통 요청 보존을 보완했다.
+- **확인 결과:** 같은 Ollama 질문 2건에서 조사 대상 포함이 2/4→4/4로 늘었다. 최종 OpenAI 06은 두 시스템의 network-timeout, 08은 payments CPU·cache 메모리 자료를 확보했다. 최초 OpenAI 06·08 실패 기록도 남겼다.
+- **근거:** [기존 06](docs/before/06_게이트웨이타임아웃.png), [기존 08](docs/before/08_복수시스템_cache조사누락_완료.png), [최종 06](docs/final_validation/captures/06_요약.png), [최종 08](docs/final_validation/captures/08_요약.png), [초기 OpenAI 진단](docs/final_validation/수정전_진단기록.json).
+
+#### ③ 미등록·미지정 대상을 다른 서비스로 대체 — 기준 09·단위 테스트
+
+- **실험 질문 09:** “billing-service 응답이 느려요. 원인 확인해주세요.”
+- **기존 결과:** 등록되지 않은 billing 대신 auth-service를 조사했다.
+- **기대 효과:** 대상이 불분명할 때 잘못된 서비스로 진단을 진행하지 않기.
+- **수정 방법:** [`targets.py`](agent/targets.py)와 [`nodes/targeting.py`](agent/nodes/targeting.py)에서 등록 여부를 검사하고, 미등록·미지정 대상은 확인 안내로 종료했다.
+- **확인 결과:** 최종 09는 다른 서비스 조회 없이 미등록 대상임을 안내했다. 대상이 없는 “로그인이 느려요”와 등록·미등록 혼합 요청은 [대상 검사 테스트](tests/test_target_guard.py)로 확인했다. 확인 답변 뒤 원래 질문으로 자동 복귀하는 기능은 아직 없다.
+- **근거:** [기존 09](docs/before/09_미등록시스템_auth로대체_완료.png) / [최종 09](docs/final_validation/captures/09_요약.png).
+
+#### ④ 복합 증상·무관련 요청에서 런북 선택이 부족하거나 부적절 — 추가 A1·A2
+
+- **실험 질문 A1:** “payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.”
+- **실험 질문 A2:** “payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.”
+- **관찰한 문제:** 기존에는 키워드로 한 유형을 고르는 구조였다. RAG 개발 중에도 A1에서 메모리 문서가 빠지고, A2에서 모니터링 알림에 끌려 제외한 high-latency 문서를 선택했다. A2 오류는 원래 제공 코드의 기준 10개 결과와 구분한다.
+- **기대 효과:** 복합 증상에는 필요한 여러 매뉴얼을 찾고, 관련 문서가 없으면 검색 결과를 억지로 만들지 않기.
+- **수정 방법:** [`runbook_search.py`](agent/runbook_search.py)에서 기존 6개 원문을 임베딩 검색하고, 증상별 검색을 합쳤다. 요청의 포함·제외 범위와 시스템별 알림을 구분했으며 임베딩·검색 실패 시 임의 런북으로 대체하지 않았다.
+- **확인 결과:** 최종 A1은 cpu-spike·memory-leak를 함께 확보했다. A2는 적합 문서 없음과 TLS 확인 불가를 안내하고 제외된 조치를 제공하지 않았다. 전체 검색 정확도는 별도 자료로 확대 평가할 필요가 있다.
+- **근거:** [개발 중 검색 기록](docs/evaluation/archive/rag_live_20261021.json), [범위 처리 평가](docs/evaluation/archive/rag_scope_retrieval_20261021.json), [최종 A1](docs/final_validation/captures/A1_요약.png), [최종 A2](docs/final_validation/captures/A2_요약.png).
+
+#### ⑤ 수치 조건 오류가 검수를 통과 — 기준 04·06 및 고정 오류 주입
+
+- **실험 질문 04:** “cache-service가 시간이 지날수록 메모리를 더 먹고 있어요. 점검 방법을 알려주세요.” 06은 앞의 타임아웃 질문을 사용했다.
+- **관찰한 문제:** 기존 04는 메모리 88.0%에서도 재시작을 제안했다. 1차 개선 후에도 메모리 88.8%에 90% 이상 조건을 적용하거나, 06의 CPU 88.4%를 90% 초과로 판단했다. 형식 검사 통과가 내용의 정확성을 보장하지 못했다.
+- **기대 효과:** 현재 사실과 매뉴얼 조건을 대조하고, 수치 충족과 운영자 확인·실행 허가를 구분하기.
+- **수정 방법:** [`evidence.py`](agent/evidence.py)·[`data/action_policies.json`](data/action_policies.json)에서 검토된 조건을 계산하고 출처·단계·상태를 검사했다. 초안에는 실제 출처와 조치 번호를 요구하고, [`writing.py`](agent/nodes/writing.py)에서 최대 3회 재작성 후 실패하면 제안을 제외했다. OpenAI 실행에서 드러난 JSON 지정 누락도 [`openai_llm.py`](agent/openai_llm.py)에 연결했다.
+- **확인 결과:** 고정 테스트는 CPU 88.4·90·90.1%, 메모리 88.8·89.9·90·90.1%를 대조한다. 오류 초안 2건의 노출은 과거 고정 평가에서 2/2→0/2였다. 실모델 후속 06은 CPU 90.3%여도 지속 여부를 몰라 조치를 보류했다. 실모델 전후 수치는 서로 달라 같은 수치로 실행한 비교는 아니다.
+- **근거:** [기존 04](docs/before/04_메모리다른표현.png), [Ollama 후속 조건 판정](docs/after/v2_grounded/06_조건판정.jpg), [조건 경계 테스트](tests/test_evidence.py), [고정 비교 결과](docs/evaluation/archive/comparison.json).
+
+#### ⑥ 도구 일부 실패 시 전체 자료 손실 — 실패 주입 테스트
+
+- **재현 입력:** `tests/test_partial_failure.py`의 “payments-service와 cache-service 장애 확인”. cache 모니터링 실패 또는 memory-leak 원문 조회 실패를 의도적으로 주입했다.
+- **확인 방식:** 자연 발생한 실모델 장애 사례가 아니라 통제된 예외 테스트다. 과거 평가에서는 도구 실패가 요청 전체 예외로 관측됐다.
+- **기대 효과:** 실패한 자료는 실패로 표시하면서 성공한 시스템의 사실과 매뉴얼은 잃지 않기.
+- **수정 방법:** [`research.py`](agent/nodes/research.py)에서 `gather(return_exceptions=True)`로 성공·실패를 나누고, 검색 실패도 같은 한계 보고 경로에 연결했다.
+- **확인 결과:** 성공 사실·원문과 실패 대상을 보존하고 미검증 제안과 내부 예외 문구는 노출하지 않는지 검사했다.
+- **근거:** [부분 실패 테스트](tests/test_partial_failure.py), [당시 평가](docs/evaluation/archive/partial_failure.json).
+
+#### ⑦ 화면만으로 대기·실패와 근거를 구분하기 어려움 — 사용 중 관찰·오류 테스트
+
+- **관찰 상황:** 복합 증상 질문을 보낸 뒤 작성·재작성 중 긴 대기가 발생해 사용자가 멈춤 여부를 알기 어려웠고, 최종 답변도 길어 조건과 출처를 찾기 어려웠다.
+- **기대 효과:** 지금 하는 작업을 보여주고, 결과는 핵심부터 읽되 필요할 때 근거를 펼쳐 확인하기.
+- **수정 방법:** [`web_chat.html`](web_chat.html)에 진행 시간·지연·오류 안내와 보고서 요약/상세를 추가했다. [`server.py`](server.py)는 처리 예외를 `StreamError` 이벤트로 전달한다.
+- **확인 결과:** 최종 A1·08 캡처에서 시스템별 상태·조건과 상세 근거를 확인했다. 스트림 오류의 종료 이벤트·내부 오류 비노출은 [오류 테스트](tests/test_stream_errors.py)로 확인했다. 화면 개선을 응답 속도 개선으로 계산하지 않는다.
+
+#### ⑧ 코드 한 파일에 집중 — 구조 점검
+
+이 항목은 특정 질문의 오답이 아니라 유지보수 문제다. 동일 질문에서 기능이 바뀌지 않도록 노드 구현을 `agent/nodes/`, 상태를 `state.py`로 분리하고 공통 로직을 모듈화했다. 기대 효과는 검색·검증 수정 위치를 찾기 쉽게 하는 것이다. 수치적인 속도·정확도 향상으로 주장하지 않고 기존 시나리오와 자동 회귀 검사로 확인했다.
+
 ## 3. 사용한 기술과 구현 범위
 
 낯선 용어는 다음처럼 이해할 수 있다. **Graph**는 작업 순서표, **MCP**는 외부 기능과 자료를 호출하는 공통 연결 방식, **Runbook(런북)**은 장애 대응 매뉴얼이다. **RAG**는 질문에 맞는 문서를 검색한 뒤 그 자료를 답변 근거로 쓰는 방식이다.
@@ -133,7 +204,7 @@ tests/                      단위·통합 회귀 검사
 evaluation/                 고정 질문·데이터·평가 실행 코드
 docs/before/                개선 전 Ollama 증거
 docs/after/                 단계별 개선 후 Ollama 증거
-docs/evaluation/            자동 평가 원본
+docs/evaluation/archive/    과거 버전 자동 평가 원본
 docs/final_validation/  최종 OpenAI 캡처·결과표
 ```
 
@@ -277,9 +348,9 @@ TLS 인증서 질문은 원래 10개 질문을 대체한 것이 아니라, **관
 
 ### 7.3 자동 평가와 측정 한계
 
-[`evaluation/run.py`](evaluation/run.py)는 동일한 고정 질문·모니터링·매뉴얼을 이용해 Git 버전별 동작을 비교한다. 실제 API 대신 fake/mock을 사용하는 평가이므로 실모델 정확도·속도 측정과 구분한다. [과거 비교 집계](docs/evaluation/comparison.json)와 [CSV](docs/evaluation/comparison.csv)는 당시 버전의 기록이다.
+[`evaluation/run.py`](evaluation/run.py)는 동일한 고정 질문·모니터링·매뉴얼을 이용해 Git 버전별 동작을 비교한다. 실제 API 대신 fake/mock을 사용하는 평가이므로 실모델 정확도·속도 측정과 구분한다. [과거 비교 집계](docs/evaluation/archive/comparison.json)와 [CSV](docs/evaluation/archive/comparison.csv)는 당시 버전의 기록이다.
 
-[`evaluation/run_retrieval.py`](evaluation/run_retrieval.py)와 [`rag_cases.json`](evaluation/rag_cases.json)은 검색 결과를 기대 문서와 비교한다. 보관된 초기 검색 평가의 보류 자료 9개는 기대 문서 집합 완전 일치 6/9였다. 이후 요청 범위·검색 로직이 바뀌었으므로 이 숫자를 최신 검색 정확도라고 표기하지 않는다. [초기 검색 결과](docs/evaluation/rag_retrieval.json), [범위 처리 평가](docs/evaluation/rag_scope_retrieval_20261021.json), [부분 실패 평가](docs/evaluation/partial_failure.json)를 보존했다.
+[`evaluation/run_retrieval.py`](evaluation/run_retrieval.py)와 [`rag_cases.json`](evaluation/rag_cases.json)은 검색 결과를 기대 문서와 비교한다. 보관된 초기 검색 평가의 보류 자료 9개는 기대 문서 집합 완전 일치 6/9였다. 이후 요청 범위·검색 로직이 바뀌었으므로 이 숫자를 최신 검색 정확도라고 표기하지 않는다. [초기 검색 결과](docs/evaluation/archive/rag_retrieval.json), [범위 처리 평가](docs/evaluation/archive/rag_scope_retrieval_20261021.json), [부분 실패 평가](docs/evaluation/archive/partial_failure.json)를 보존했다.
 
 모니터링 현재 수치는 교육용 샘플에 변동이 있고 고정 알림의 발생 시점도 확인할 수 없다. 자동화 중 화면 관측 시간에는 작업 사이 대기가 포함돼 실제 처리 지연으로 사용하지 않았다. 비용 필드는 가상 단가 환산이므로 실제 청구액이 아니다. 따라서 **지연·비용 감소율은 주장하지 않는다.**
 
@@ -336,7 +407,7 @@ LangSmith에서는 사용한 프로젝트의 Tracing에서 입력 질문이 같�
 ## 10. 제출 자료와 문서 정리 기준
 
 - **보고서:** 이 `README.md` 한 파일.
-- **검증 근거:** `docs/before/`, `docs/after/`, `docs/evaluation/`, `docs/final_validation/captures/`의 원본·결과표는 그대로 보존한다. 과거 평가와 최신 결과는 버전·모델을 구분해 사용한다.
+- **검증 근거:** `docs/before/`, `docs/after/`, `docs/evaluation/archive/`, `docs/final_validation/captures/`의 원본·결과표의 내용은 보존한다. 과거 평가와 최신 결과는 버전·모델을 구분해 사용한다.
 - **실행 데이터:** `data/runbooks/*.md` 6개는 보고서가 아니라 검색 대상 매뉴얼이므로 유지한다.
 
-분산된 README·프로젝트 보고서·코드 설명은 이 문서에 통합했다. 제공된 사용 설명서·예시 이미지는 이력 참고용으로 보존한다. 발표용 PPTX·PDF·대본은 데스크탑에 별도로 보관하며 저장소에 포함하지 않는다. 삭제된 과거 문서는 Git 이력에서 확인할 수 있다.
+분산된 README·프로젝트 보고서·코드 설명은 이 문서에 통합했다. 제공된 구형 설명서·예시 이미지는 데스크탑 구자료 보관 폴더로 분리했다. 중복된 `docs/baseline/`은 버전 정보가 포함된 `docs/before/`로 통합했다. 학생 배포용 ZIP 스크립트는 제거했다. 과거 자동 평가 결과는 `docs/evaluation/archive/`에 보관하고 당시 `HEAD.json`은 실제 버전명 `4d518cb.json`으로 바꿨다. 발표용 PPTX·PDF·대본은 데스크탑에 별도로 보관하며 저장소에 포함하지 않는다. 삭제된 과거 문서는 Git 이력에서 확인할 수 있다.
