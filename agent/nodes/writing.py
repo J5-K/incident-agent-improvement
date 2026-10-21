@@ -5,6 +5,7 @@ from ..deps import SupervisorDeps
 from ..state import AgentState, _cost
 from ..evidence import validate_proposal
 from ..reporting import build_report, render_report
+from ..runbook_search import request_scope, scoped_query
 
 
 @traceable(name="write_node")
@@ -32,6 +33,18 @@ async def validate_node(state: AgentState, deps: SupervisorDeps) -> dict:
                 "events": state["events"] + [{"type": "Validation", "attempt": 0, "verdict": "미수행", "skipped": True}]}
     attempts = state.get("validation_attempts", 0) + 1
     proposal, issues = validate_proposal(state["draft"], state.get("collected", []), state.get("registered_targets", []))
+    for name in state.get("registered_targets", []):
+        scope = request_scope(scoped_query(state["query"], name, state["registered_targets"]))
+        books = {c.get("incident_type") for c in state.get("collected", [])
+                 if c.get("source") == "runbook" and c.get("system_name") == name}
+        if books.intersection(scope["excluded"]):
+            issues.append(name + ": 사용자가 제외한 대응 포함")
+        if scope["included"] and books - set(scope["included"]):
+            issues.append(name + ": 요청 증상 범위 밖의 매뉴얼 포함")
+        if scope["included"] and not set(scope["included"]).issubset(books):
+            issues.append(name + ": 요청 증상에 필요한 매뉴얼 누락")
+        if scope["unsupported"]:
+            issues.append(name + ": 인증서 조회 기능·매뉴얼 없음")
     passed = not issues
     return {"validation_attempts": attempts, "validation_passed": passed,
             "validated_proposal": proposal or {}, "validation_issues": issues,

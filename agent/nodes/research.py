@@ -146,7 +146,12 @@ async def replan_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
         else:
             query = system_search_query(state["query"], name, state["registered_targets"], monitoring[0]["data"])
             try:
-                hits = await retriever.search(query)
+                details = {}
+                if callable(getattr(retriever, "search_request", None)):
+                    details = await retriever.search_request(state["query"], name, state["registered_targets"], monitoring[0]["data"])
+                    hits = details["hits"]
+                else:
+                    hits = await retriever.search(query)
                 if any(not re.fullmatch(r"[a-z0-9-]+", h["incident_type"]) or not re.fullmatch(r"[0-9a-f]{64}", h["sha256"]) for h in hits):
                     raise ValueError("Invalid search document metadata")
             except Exception as exc:
@@ -156,12 +161,15 @@ async def replan_check_node(state: AgentState, deps: SupervisorDeps) -> dict:
                 searches.append({"system_name":name,"status":"error","hits":[]})
                 events.append({"type":"TaskFailed",**failure})
                 continue
-            status="found" if hits else "no_match"
-            searches.append({"system_name":name,"status":status,"query":query,"hits":hits})
+            if details.get("missing"):
+                unmatched.append(name)
+            status="partial" if hits and details.get("missing") else "found" if hits else "no_match"
+            searches.append({"system_name":name,"status":status,"query":query,"hits":hits, "scope":details.get("scope", {}), "missing":details.get("missing", [])})
             events.append({"type":"RunbookSearch","system_name":name,"status":status,
                            "documents":[h["incident_type"] for h in hits]})
-            if not hits:
+            if not hits and name not in unmatched:
                 unmatched.append(name)
+            if not hits:
                 continue
         seen=set()
         for hit in hits:

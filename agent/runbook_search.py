@@ -70,6 +70,36 @@ def system_search_query(query, name, targets, monitoring):
 
 
 
+# Explicit request scope is a guard around dense retrieval, not a keyword fallback.
+TOPICS = {
+    "cpu-spike": (r"cpu|프로세서", "CPU 사용률 급증 원인과 대응"),
+    "memory-leak": (r"메모리|memory|heap|힙|누수", "메모리 사용량 증가 메모리 누수 대응"),
+    "high-latency": (r"latency|응답\s*지연|느려|느린|느립|커넥션\s*풀", "응답 지연 커넥션 풀 대응"),
+    "network-timeout": (r"timeout|타임아웃|네트워크|network", "네트워크 연결 타임아웃 대응"),
+    "disk-full": (r"disk|디스크|저장\s*공간", "디스크 용량 부족 대응"),
+    "db-down": (r"데이터베이스|\bdb\b|database", "데이터베이스 연결 장애 대응"),
+}
+UNSUPPORTED = r"\btls\b|\bssl\b|인증서|certificate"
+
+
+def request_scope(query):
+    included, excluded, positive = set(), set(), []
+    # Semicolon/sentence boundaries keep a trailing exclusion from swallowing
+    # an earlier positive request. A coordinated exclusion list stays together.
+    for clause in re.split(r"[.!?;\n]+", query):
+        topics = {kind for kind, (pattern, _) in TOPICS.items()
+                  if re.search(pattern, clause, re.I)}
+        if re.search(r"제외|빼고|말고|다루지|하지\s*마|ignore|exclude", clause, re.I):
+            excluded.update(topics)
+        else:
+            included.update(topics)
+            positive.append(clause)
+    included -= excluded
+    unsupported = bool(re.search(UNSUPPORTED, " ".join(positive), re.I))
+    return {"included": sorted(included), "excluded": sorted(excluded),
+            "unsupported": unsupported, "positive": " ".join(positive).strip()}
+
+
 class RunbookSearch:
     def __init__(self, embedder=None, *, directory=None, cache_path=None,
                  min_score=0.43, score_margin=0.08, top_k=2):
@@ -144,3 +174,37 @@ class RunbookSearch:
         ranked=await self.rank(query)
         cutoff=max(self.min_score, ranked[0]["score"]-self.score_margin)
         return [dict(h,score=round(h["score"],6)) for h in ranked[:self.top_k] if h["score"]>=cutoff]
+
+
+    async def search_request(self, query, name, targets, monitoring):
+        """Search each explicit symptom separately; alerts cannot expand scope.
+
+        This vocabulary covers the six supplied runbooks. Unknown expressions
+        still use dense retrieval; TLS/certificate requests are unsupported.
+        """
+        clause = scoped_query(query, name, targets)
+        scope = request_scope(clause)
+        hits, missing = {}, []
+        if scope["included"]:
+            for kind in scope["included"]:
+                # Ranking remains embedding-based; no document is forced in.
+                candidates = await self.search(TOPICS[kind][1])
+                matches = [h for h in candidates if h["incident_type"] == kind]
+                if not matches:
+                    missing.append(kind)
+                for hit in matches:
+                    hits[hit["incident_type"]] = hit
+        elif not scope["unsupported"]:
+            # Explicit exclusions must not re-enter through monitoring alerts.
+            positive = scope["positive"]
+            generic = re.sub(r"[a-z][a-z0-9_-]*-service", "", positive, flags=re.I)
+            generic = bool(re.fullmatch(r"[\s와과의,]*(?:상태|장애|문제|확인|조사|해주세요|알려주세요|해줘|해|줘|운영|점검|및|각각|을|를|이|가|는|은|에|서|좀|해|요|[\s,])+", generic))
+            text = (system_search_query(query, name, targets, monitoring)
+                    if generic and not scope["excluded"] else positive)
+            for hit in await self.search(text):
+                if hit["incident_type"] not in scope["excluded"]:
+                    hits[hit["incident_type"]] = hit
+        if scope["unsupported"]:
+            missing.append("TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가")
+        return {"hits": list(hits.values()), "missing": missing,
+                "scope": scope, "query": clause}

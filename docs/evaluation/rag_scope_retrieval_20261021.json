@@ -1,0 +1,78 @@
+[
+  {
+    "case": "compound",
+    "result": {
+      "hits": [
+        {
+          "document_id": "cpu-spike",
+          "incident_type": "cpu-spike",
+          "title": "# Runbook: CPU 급증 대응 절차",
+          "sha256": "30796f7b5c1d0bc09acfb2518b240e3a07b04136e84fe41397802a3bf2bff22d",
+          "score": 0.624339
+        },
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.585714
+        }
+      ],
+      "missing": [],
+      "scope": {
+        "included": [
+          "cpu-spike",
+          "memory-leak"
+        ],
+        "excluded": [],
+        "unsupported": false,
+        "positive": "payments-service의 CPU와 메모리 사용량이 모두 높아요  각각 원인과 대응 방법을 알려주세요"
+      },
+      "query": "payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요."
+    }
+  },
+  {
+    "case": "memory",
+    "result": {
+      "hits": [
+        {
+          "document_id": "memory-leak",
+          "incident_type": "memory-leak",
+          "title": "# Runbook: 메모리 누수(Memory Leak) 대응 절차",
+          "sha256": "085f00e9bba5effbb54e97a82d5f0b7032e027dac29816021729932a5e9a9ee1",
+          "score": 0.585714
+        }
+      ],
+      "missing": [],
+      "scope": {
+        "included": [
+          "memory-leak"
+        ],
+        "excluded": [],
+        "unsupported": false,
+        "positive": "payments-service의 메모리 사용량 문제를 조사해주세요  메모리 누수 가능성과 대응 방법을 알려주세요"
+      },
+      "query": "payments-service의 메모리 사용량 문제를 조사해주세요. 메모리 누수 가능성과 대응 방법을 알려주세요."
+    }
+  },
+  {
+    "case": "tls",
+    "result": {
+      "hits": [],
+      "missing": [
+        "TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가"
+      ],
+      "scope": {
+        "included": [],
+        "excluded": [
+          "cpu-spike",
+          "high-latency",
+          "memory-leak"
+        ],
+        "unsupported": true,
+        "positive": "payments-service의 TLS 인증서가 만료됐는지 조사해주세요"
+      },
+      "query": "payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요."
+    }
+  }
+]
