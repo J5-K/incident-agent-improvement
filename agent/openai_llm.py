@@ -216,7 +216,7 @@ class OpenAIQualityLLM(OpenAILLM):
         전달한다."""
         from .evidence import writer_prompt
         system, user = writer_prompt(query, collected, feedback)
-        content, usage = self._chat(system, user)
+        content, usage = self._chat(system, user, json_mode=True)
         usage["prompt"] = f"[SYSTEM]\n{system}\n\n[USER]\n{user}"
         if on_token is not None:
             on_token(content)
