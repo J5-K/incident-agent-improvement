@@ -1,0 +1,34 @@
+{
+  "captured_at": "2026-10-21T13:41:41.339943+09:00",
+  "url": "http://localhost:8600/",
+  "backend": "ollama:qwen3:0.6b / ollama:qwen3:8b",
+  "data": "교육용 JSON 모니터링 데이터, 현재 수치 변동",
+  "cases": [
+    {
+      "case": "CPU·메모리 복합",
+      "files": [
+        "01_복합증상_요약.png",
+        "02_복합증상_상세근거.png"
+      ],
+      "result": "cpu-spike와 memory-leak 조회, 작성 1회, 출처 3개, 수치 조건에 따라 조치 보류",
+      "cpu_percent": 90.1,
+      "memory_percent": 54.5
+    },
+    {
+      "case": "TLS·제외 조건",
+      "file": "03_TLS_확인불가.png",
+      "result": "적합한 매뉴얼 없음, 인증서 확인 불가, 제외 대응 안내, 작성 0회"
+    },
+    {
+      "case": "미등록 대상",
+      "file": "04_미등록대상_확인.png",
+      "result": "billing-service 대신 다른 시스템을 조회하지 않고 확인 요청"
+    },
+    {
+      "case": "미지정 대상",
+      "file": "05_미지정대상_확인.png",
+      "result": "시스템명 확인 요청"
+    }
+  ],
+  "limitation": "현재 발표용 대표 4사례/5장. 전체 최신 UI 회귀나 일반화된 정확도 평가가 아니다."
+}

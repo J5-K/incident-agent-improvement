@@ -1,0 +1,33 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: payments-service의 CPU와 메모리 사용량이 모두 높아요. 각각 원인과 대응 방법을 알려주세요.
+- generic: "✓ 계획 수립: 할 일 2가지 (시스템: payments-service)"
+- generic: "✓ 모니터링 지표 확인 (시스템: payments-service)"
+- generic: "✓ payments-service 의미 검색: cpu-spike, memory-leak"
+- generic: ✓ 정보 부족 → 장애유형 "cpu-spike, memory-leak"로 추가 조사
+- generic: "✓ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: cpu-spike)"
+- generic: "✓ 대응 매뉴얼(runbook) 조회 (시스템: payments-service, 장애유형: memory-leak)"
+- generic: ✓ 답변 초안 작성 (시도 1)
+- generic: ✓ 출처·대상·조건 검사 통과
+- generic: ✓ 출처·조건 검사 완료 · 출처 3개 · 작성 1회
+- generic: ✓ 최종 답변 완성
+- heading "조사 완료 · 원인은 추가 확인 필요" [level=3]
+- heading "확인된 상태" [level=4]
+- paragraph:
+  - strong: payments-service
+  - text: CPU 90.1% · 메모리 54.5% · 상태 degraded
+- paragraph: 메모리 누수 여부는 현재 사용률만으로 판단할 수 없습니다. 시간별 추세와 힙 분석 등 추가 근거가 필요합니다.
+- heading "원인 판단" [level=4]
+- paragraph: "payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다."
+- heading "우선 확인할 사항" [level=4]
+- list:
+  - text: "payments-service: CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다."
+  - text: "조건·승인 확인 전 실행하지 마세요. cpu_percent 90.1% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류"
+  - text: "payments-service: get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다."
+  - text: 조건·승인 확인 전 실행하지 마세요. 매뉴얼의 선행 조건·운영자 확인 필요
+- paragraph: "조치 보류: payments-service · memory_percent 54.5% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류"
+- generic "전체 조치 · 검색 결과 · 출처 · 검증 상세" [active]
+- generic: "[출처·조건 검증 완료] 작성 시도 1회 / 시스템·출처·단계·검토된 수치 조건의 일치 확인. 원인 확정 검증 아님 1) 확인된 사실 - payments-service: 상태=degraded, CPU 90.1%, 메모리 54.5% [monitoring:payments-service] 원본 경고(현재 수치와 별개이며 시점 미확인): CPU 91% (threshold 80%); payments-service-3 instance responding slow 2) 원인 추정 — 확정 사실 아님 - payments-service: 부하 증가 가능성. 모니터링만으로 원인을 확정할 수 없습니다. [monitoring:payments-service] 3) 권장 점검·조건부 조치 — 실행은 운영자 판단 - payments-service [runbook:payments-service:cpu-spike #3]: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 90.1% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 참고 원문(즉시 실행 지시 아님): CPU가 90%를 넘고 지속되면 해당 인스턴스를 오토스케일링 그룹에서 한 대 더 띄워 부하를 분산한다. - payments-service [runbook:payments-service:memory-leak #1]: 추가 확인 필요 / 자동 실행 불가 / 매뉴얼의 선행 조건·운영자 확인 필요 참고 원문(즉시 실행 지시 아님): get_monitoring_status로 메모리 사용률 추세(시간에 따라 꾸준히 증가하는지)를 확인한다. 수치 조건 대조(선택 단계와 별도로 표시) - payments-service: 추가 확인 필요 / 자동 실행 불가 / cpu_percent 90.1% > 90%: 수치 조건 충족, 지속 여부 미수집이므로 추가 확인 전 조치 보류 [runbook:payments-service:cpu-spike #3] - payments-service: 조건 미충족 / 조치 권고 보류 / memory_percent 54.5% >= 90%: 수치 조건 미충족, 해당 조치 권고 보류 [runbook:payments-service:memory-leak #2] Runbook 검색 결과 - payments-service: cpu-spike (유사도 0.624), memory-leak (유사도 0.586) 4) 참고 출처 - [monitoring:payments-service] MCP Tool get_monitoring_status / 대상 payments-service - [runbook:payments-service:cpu-spike] # Runbook: CPU 급증 대응 절차 / MCP Resource runbook://incident-response/cpu-spike / 서버 ops - [runbook:payments-service:memory-leak] # Runbook: 메모리 누수(Memory Leak) 대응 절차 / MCP Resource runbook://incident-response/memory-leak / 서버 ops 추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다."
+- paragraph: 교육용 모니터링 데이터입니다. 현재 수치만으로 원인을 확정할 수 없습니다.
+- generic "🔍 LLM에 전달된 최종 프롬프트 보기"
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

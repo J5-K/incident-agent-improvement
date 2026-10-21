@@ -1,0 +1,22 @@
+- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
+- generic: payments-service의 TLS 인증서가 만료됐는지 조사해주세요. CPU·메모리·응답 지연 대응은 이번 조사에서 제외해주세요.
+- generic: "✓ 계획 수립: 할 일 2가지 (시스템: payments-service)"
+- generic: "✓ 모니터링 지표 확인 (시스템: payments-service)"
+- generic: "✓ payments-service 의미 검색: 적합한 매뉴얼 없음"
+- generic: ✓ 자료·매뉴얼 근거 부족 → 원인·조치 생성 생략
+- generic: ✓ 자료 부족 → 제안 검증 미수행
+- generic: ✓ 매뉴얼 근거 부족 · 사실 보고서 · 출처 1개 · 작성 0회
+- generic: ✓ 최종 답변 완성
+- heading "조사 한계 · 확인된 자료만 제공" [level=3]
+- paragraph: "TLS 인증서: 현재 도구·매뉴얼로 만료 여부 확인 불가"
+- paragraph: "요청에 따라 대응 제외: CPU 급증, 응답 지연, 메모리 문제"
+- paragraph: 적합한 문서 없음 또는 요청 증상 일부 누락으로 원인·조치 제안을 보류했습니다.
+- heading "확인된 상태" [level=4]
+- paragraph:
+  - strong: payments-service
+  - text: CPU 88.3% · 메모리 53.7% · 상태 degraded
+- list
+- generic "전체 조치 · 검색 결과 · 출처 · 검증 상세"
+- paragraph: 교육용 모니터링 데이터입니다. 현재 수치만으로 원인을 확정할 수 없습니다.
+- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
+- button "보내기"

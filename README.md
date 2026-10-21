@@ -27,3 +27,13 @@ PYTHONDONTWRITEBYTECODE=1 LANGCHAIN_TRACING_V2=false LANGSMITH_TRACING=false .ve
 ```
 
 기존 버전 비교는 네트워크 없는 fake/mock 그래프 평가다. RAG 실제 임베딩 평가는 `.venv/bin/python3 evaluation/run_retrieval.py`로 실행한다. 서버 기본은 RAG이며 비교용 키워드 모드는 `RUNBOOK_SEARCH_MODE=keyword`다. 실제 모델 평가와 해석·재현 방법은 보고서를 참고한다. [제공 코드 원본 매뉴얼](doc/README.md)은 별도로 보존한다.
+
+
+### 검색 범위·화면 보완 (2026-10-21)
+
+증상별 RAG 검색·제외 조건·미지원 요청 처리를 보완하고 요약 보고서·접힌 상세 근거·진행 시간·오류 안내를 추가했습니다. 대표 실모델 결과와 한계는 [상세 설명서](doc/README.md)의 최신 절을 참고하세요.
+
+
+### 최종 발표 자료
+
+[G073 김주오 발표 자료와 최신 실행 캡처](docs/presentation/README.md)에 5분 발표용 8장 PPTX·PDF·대본 및 대표 4사례 캡처 5장을 정리했습니다.
