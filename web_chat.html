@@ -75,6 +75,17 @@
     color: white; font-size: 14px; cursor: pointer;
   }
   button:disabled { background: #3a3a52; cursor: default; }
+.report { white-space: normal; max-width: 880px; width: 100%; }
+  .report h3 { margin: 0 0 14px; }
+  .report h4 { margin: 18px 0 8px; color: #bcbcff; }
+  .report p, .report li { line-height: 1.8; }
+  .report ul { padding-left: 22px; }
+  .report details { margin-top: 14px; border-top: 1px solid #50506a; padding-top: 10px; }
+  .report summary { cursor: pointer; color: #bcbcff; }
+  .report pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+  .status { padding: 8px 20px; color: #c6c6ff; background: #262638; }
+  .error { color: #ffb4b4; }
+  @media (max-width: 800px) { .bubble, .steps, .prompt-box { max-width: 96%; } }
 </style>
 </head>
 <body>
@@ -87,11 +98,30 @@
       </div>
 
       <div v-else-if="item.kind === 'steps'" class="steps">
-        <div v-for="(step, i) in item.steps" :key="i" class="step">{{ step }}</div>
+        <div v-for="(step, i) in item.steps" :key="i" class="step" :class="{done: item.done}">{{ step }}</div>
       </div>
 
       <div v-else-if="item.kind === 'agent'" class="row agent">
-        <div class="bubble">{{ item.text }}</div>
+        <div v-if="item.report" class="bubble report">
+          <h3>{{ item.report.verification.passed ? '조사 완료 · 원인은 추가 확인 필요' : '조사 한계 · 확인된 자료만 제공' }}</h3>
+          <template v-for="search in item.report.retrieval.searches">
+            <p v-for="note in (search.missing || [])">{{ note }}</p>
+            <p v-if="search.scope?.excluded?.length">요청에 따라 대응 제외: {{ search.scope.excluded.map(kind => RUNBOOK_LABELS[kind] || kind).join(', ') }}</p>
+          </template>
+          <p v-if="item.report.retrieval.unmatched_systems.length">적합한 문서 없음 또는 요청 증상 일부 누락으로 원인·조치 제안을 보류했습니다.</p>
+          <p v-if="item.report.collection.failed_tasks.length" class="error">일부 조회 실패 · 성공한 결과는 보존했습니다. 상세 근거에서 실패 대상을 확인하세요.</p>
+          <h4>확인된 상태</h4>
+          <p v-for="fact in item.report.facts"><strong>{{ fact.system_name }}</strong><br>CPU {{ fact.cpu_percent == null ? '미수집' : fact.cpu_percent + '%' }} · 메모리 {{ fact.memory_percent == null ? '미수집' : fact.memory_percent + '%' }} · 상태 {{ fact.status }}</p>
+          <p v-if="item.report.sources.some(source => source.id.endsWith(':memory-leak'))">메모리 누수 여부는 현재 사용률만으로 판단할 수 없습니다. 시간별 추세와 힙 분석 등 추가 근거가 필요합니다.</p>
+          <h4 v-if="item.report.hypotheses.length">원인 판단</h4>
+          <p v-for="h in item.report.hypotheses">{{ h.system_name }}: {{ h.text }}</p>
+          <h4 v-if="item.report.recommendations.length">우선 확인할 사항</h4>
+          <ul><li v-for="a in item.report.recommendations.filter(a => a.status !== 'not_met').slice(0, 3)">{{ a.system_name }}: {{ a.original_text }}<br><small>조건·승인 확인 전 실행하지 마세요. {{ a.reason }}</small></li></ul>
+          <p v-for="c in item.report.condition_checks.filter(c => c.status === 'not_met')">조치 보류: {{ c.system_name }} · {{ c.reason }}</p>
+          <details><summary>전체 조치 · 검색 결과 · 출처 · 검증 상세</summary><pre>{{ item.text }}</pre></details>
+          <p><small>교육용 모니터링 데이터입니다. 현재 수치만으로 원인을 확정할 수 없습니다.</small></p>
+        </div>
+        <div v-else class="bubble">{{ item.text }}</div>
       </div>
 
       <details v-else-if="item.kind === 'prompt'" class="prompt-box">
@@ -99,6 +129,9 @@
         <pre>{{ item.text }}</pre>
       </details>
     </template>
+  </div>
+  <div v-if="sending || statusError" class="status" :class="{error: statusError}" role="status" aria-live="polite">
+    {{ stage }}<span v-if="sending"> · {{ elapsed }}초<span v-if="elapsed >= 45"> · 예상보다 오래 걸리고 있습니다. 완료 여부를 기다리는 중입니다.</span></span>
   </div>
   <form @submit.prevent="onSubmit">
     <input
@@ -114,16 +147,21 @@
 <script>
 const { createApp, ref, reactive, nextTick } = Vue;
 
+const RUNBOOK_LABELS = {
+  'cpu-spike': 'CPU 급증', 'memory-leak': '메모리 문제',
+  'high-latency': '응답 지연', 'network-timeout': '네트워크 시간 초과',
+  'disk-full': '디스크 용량 부족', 'db-down': '데이터베이스 장애',
+};
+
 const STEP_LABELS = {
   TargetClarification: e => e.reason === "unknown_system" ? "미등록 시스템 → 이름 확인 필요" : "조사 대상 시스템 확인 필요",
   PlanReconciled: e => e.added_targets?.length ? `누락된 조사 대상 보완: ${e.added_targets.join(', ')}` : null,
-  AnswerCoverageSupplemented: e => `답변 누락 대상 근거 보충: ${e.systems.join(', ')}`,
   PlanCreated: e => `계획 수립: 할 일 ${e.task_count}가지${e.targets?.length ? ` (시스템: ${e.targets.join(', ')})` : ''}`,
   GateApplied: e => e.removed_analysis_tasks ? `불필요한 작업 ${e.removed_analysis_tasks}건 제거` : null,
   TaskCompleted: e => (e.source === 'monitoring'
       ? `모니터링 지표 확인 (시스템: ${e.target})`
       : `대응 매뉴얼(runbook) 조회 (시스템: ${e.system_name || '미지정'}, 장애유형: ${e.target})`) + (e.retries ? ' (재시도 성공)' : ''),
-  RunbookSearch: e => `${e.system_name} 의미 검색: ${e.status === 'found' ? e.documents.join(', ') : '적합한 매뉴얼 없음'}`,
+  RunbookSearch: e => `${e.system_name} 의미 검색: ${e.documents?.length ? e.documents.join(', ') + (e.status === 'partial' ? ' · 일부 증상 매뉴얼 누락' : '') : e.status === 'error' ? '검색 오류' : '적합한 매뉴얼 없음'}`,
   TaskFailed: e => `${e.system_name} ${e.source === 'monitoring' ? '모니터링' : e.source === 'runbook_search' ? '매뉴얼 검색' : '매뉴얼'} 조회 실패 → 성공 결과 보존`,
   DraftSkipped: () => '자료·매뉴얼 근거 부족 → 원인·조치 생성 생략',
   ReplanCheck: e => (e.collection_finished || e.is_sufficient) ? null : `정보 부족 → 장애유형 "${e.targets?.join(', ') || e.target}"로 추가 조사`,
@@ -139,6 +177,12 @@ createApp({
     const log = ref([]);
     const input = ref('');
     const sending = ref(false);
+    const elapsed = ref(0), stage = ref(''), statusError = ref(false);
+    let timer = null;
+    function finish(message, failed = false) {
+      clearInterval(timer); timer = null;
+      sending.value = false; stage.value = message; statusError.value = failed;
+    }
     const logEl = ref(null);
     const thread = 't-web-' + Math.random().toString(36).slice(2, 8);
     let nextId = 0;
@@ -154,11 +198,14 @@ createApp({
 
     function onSubmit() {
       const text = input.value.trim();
-      if (!text) return;
+      if (!text || sending.value) return;
 
       log.value.push({ id: nextId++, kind: 'user', text });
       input.value = '';
       sending.value = true;
+      elapsed.value = 0; stage.value = '서버 연결·질문 처리 중'; statusError.value = false;
+      const started = Date.now();
+      timer = setInterval(() => { elapsed.value = Math.floor((Date.now() - started) / 1000); }, 1000);
       scrollToBottom();
 
       const stepsItem = reactive({ id: nextId++, kind: 'steps', steps: [] });
@@ -171,10 +218,15 @@ createApp({
       let streamAttempt = null;   // write_node 재작성(attempt 증가) 시 새 말풍선으로 끊는다
 
       es.onmessage = (event) => {
-        if (event.data === '[DONE]') { es.close(); sending.value = false; return; }
+        if (event.data === '[DONE]') { stepsItem.done = !statusError.value; es.close(); if (!statusError.value) finish('완료'); return; }
         let e;
         try { e = JSON.parse(event.data); } catch { return; }
 
+        if (e.type === 'StreamError') {
+          es.close(); finish(e.message, true);
+          log.value.push({id: nextId++, kind: 'agent', text: e.message});
+          scrollToBottom(); return;
+        }
         if (e.type === 'AnswerToken') {
           if (!streamItem || streamAttempt !== e.attempt) {
             streamItem = reactive({ id: nextId++, kind: 'agent', text: '' });
@@ -191,6 +243,7 @@ createApp({
             streamItem = reactive({ id: nextId++, kind: 'agent', text: '' });
             log.value.push(streamItem);
           }
+          streamItem.report = e.report || null;
           streamItem.text = e.reply;   // 토큰 합산 결과와 서버의 최종 텍스트를 일치시킨다
           if (e.prompt) log.value.push({ id: nextId++, kind: 'prompt', text: e.prompt });
           streamItem = null;
@@ -204,13 +257,15 @@ createApp({
         const label = fn(e);
         if (!label) return;
         stepsItem.steps.push(label);
+        stage.value = e.type === 'PlanCreated' ? '모니터링 조회 중' : e.type === 'TaskCompleted' && e.source === 'monitoring' ? '증상별 매뉴얼 검색 중' : e.type === 'TaskCompleted' && e.source === 'runbook' ? '분석·AI 답변 생성 중' : e.type === 'DraftWritten' ? '답변 검증 중' : e.type === 'Validation' && e.verdict !== '합격' && !e.skipped && !e.exhausted
+          ? `AI 재작성 중 · 검사 ${e.attempt}회 완료` : label;
         scrollToBottom();
       };
 
-      es.onerror = () => { es.close(); sending.value = false; };
+      es.onerror = () => { es.close(); finish('서버 연결이 끊겼습니다. 완료 여부를 확인할 수 없습니다. 백엔드 로그를 확인한 뒤 다시 시도해주세요.', true); };
     }
 
-    return { backendLabel, log, input, sending, logEl, onSubmit };
+    return { backendLabel, log, input, sending, logEl, onSubmit, elapsed, stage, statusError, RUNBOOK_LABELS };
   },
 }).mount('#app');
 </script>

@@ -56,7 +56,7 @@ def metric(value):
     return str(value) + "%" if isinstance(value, (float, int)) and not isinstance(value, bool) and math.isfinite(value) else "미수집"
 
 
-def render_report(report):
+def render_report_details(report):
     v = report["verification"]
     collection = report.get("collection", {"status": "complete", "failed_tasks": []})
     lines = ["[출처·조건 검증 완료]" if v["passed"] else "[검증 미통과 — 확인된 사실만 제공]",
@@ -107,3 +107,15 @@ def render_report(report):
             lines.append(f"- [{s['id']}] {s['title']} / MCP Resource {s['uri']} / 서버 {s['server']}")
     lines += ["", "추가 로그·배포 이력·시계열 없이 원인을 확정할 수 없습니다. 모니터링은 교육용 샘플 데이터입니다."]
     return "\n".join(lines)
+
+
+
+def render_report(report):
+    notes = []
+    for search in report.get("retrieval", {}).get("searches", []):
+        notes.extend(search.get("missing", []))
+        excluded = search.get("scope", {}).get("excluded", [])
+        if excluded:
+            notes.append("요청에 따라 대응 제외: " + ", ".join(excluded))
+    prefix = "\n".join("- " + note for note in notes)
+    return (prefix + "\n\n" if prefix else "") + render_report_details(report)

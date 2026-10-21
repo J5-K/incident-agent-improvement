@@ -9,6 +9,8 @@
 - LangSmith: 요청당 chat_request 루트 run 아래로 노드·LLM·MCP 호출이 계층 기록됨
 """
 import json
+import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -180,6 +182,7 @@ async def chat_stream(message: str, thread_id: str = "default"):
         else:
             seen = 0
             final = ""
+            report = None
             last_prompt = None   # finalize까지 살아남은 최종 write/chat 호출의 실제 프롬프트
             # stream_mode를 리스트로 주면 (mode, payload) 튜플이 나온다 — "updates"는
             # 노드가 끝날 때마다의 상태 델타, "custom"은 write_node/chat_answer_node가
@@ -196,16 +199,29 @@ async def chat_stream(message: str, thread_id: str = "default"):
                         yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
                     if delta.get("events"):
                         seen = len(delta["events"])
+                    if delta.get("report"):
+                        report = delta["report"]
                     if delta.get("final"):
                         final = delta["final"]
                     if delta.get("last_prompt"):
                         last_prompt = delta["last_prompt"]
-            yield f"data: {json.dumps({'type': 'FinalAnswer', 'reply': final, 'prompt': last_prompt}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'FinalAnswer', 'reply': final, 'prompt': last_prompt, 'report': report}, ensure_ascii=False)}\n\n"
             deps.session_store.append(thread_id, "user", message)
             deps.session_store.append(thread_id, "assistant", final)
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(gen(), media_type="text/event-stream")
+    async def safe_gen():
+        try:
+            async with asyncio.timeout(600):
+                async for chunk in gen():
+                    yield chunk
+        except Exception as exc:
+            logging.exception("Chat stream failed")
+            reason = "응답 제한 시간 초과" if isinstance(exc, TimeoutError) else "모델·검색 또는 서버 처리 오류"
+            yield "data: " + json.dumps({"type": "StreamError", "message": reason + ". 서버 로그를 확인한 뒤 다시 시도해주세요."}, ensure_ascii=False) + "\n\n"
+            yield "data: [DONE]\n\n"
+
+    return StreamingResponse(safe_gen(), media_type="text/event-stream")
 
 
 if __name__ == "__main__":
