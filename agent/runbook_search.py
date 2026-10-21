@@ -52,6 +52,12 @@ def scoped_query(query, name, targets):
     if len(targets) < 2:
         return query
     mentions = list(re.finditer("|".join(re.escape(t) for t in sorted(targets, key=len, reverse=True)), query, re.I))
+    # A에서 B로의 타임아웃 / A와 B 상태처럼 공통 술어는 함께 유지한다.
+    if len(mentions) >= 2 and all(
+        re.fullmatch(r"\s*(?:에서|와|과|및|,)\s*", query[a.end():b.start()])
+        for a, b in zip(mentions, mentions[1:])
+    ):
+        return query
     parts = [query[m.start():mentions[i+1].start() if i+1<len(mentions) else len(query)]
              for i,m in enumerate(mentions) if m.group().lower()==name.lower()]
     return " ".join(parts)
@@ -64,6 +70,8 @@ def system_search_query(query, name, targets, monitoring):
     if names:
         clause=re.sub(names," ",clause,flags=re.I)
     clause=re.sub(r"^\s*(?:와|과|에서|의|로)\s*", "", clause).strip()
+    if re.fullmatch(r"상태\s*확인", clause):
+        clause = ""
     alerts=[re.sub(r"[a-z][a-z0-9_-]*-service(?:-\d+)?", "", a, flags=re.I).strip()
             for a in monitoring.get("alerts", [])]
     return "\n".join(part for part in [clause, "; ".join(alerts)] if part)
@@ -184,6 +192,11 @@ class RunbookSearch:
         """
         clause = scoped_query(query, name, targets)
         scope = request_scope(clause)
+        if not scope["included"] and not scope["excluded"] and not scope["unsupported"] and re.search(
+                r"상태.*(?:확인|점검|조사)|각각.*상태", scope["positive"]):
+            # Generic status requests use each system's own alert symptoms.
+            scope["included"] = request_scope(" ".join(monitoring.get("alerts", [])))["included"]
+            scope["source"] = "monitoring_alerts"
         hits, missing = {}, []
         if scope["included"]:
             for kind in scope["included"]:
