@@ -1,7 +1,0 @@
-- banner: 운영 인시던트 대응 에이전트 ollama 실모델(ollama:qwen3:0.6b/ollama:qwen3:8b) · all_total_vue
-- generic: CPU 사용량이 높아요. 원인과 대응 방법을 알려주세요.
-- generic: ✓ 조사 대상 시스템 확인 필요
-- generic: ✓ 최종 답변 완성
-- generic: "조회할 시스템 이름을 알려주세요. 임의의 시스템을 대신 조회하지 않았습니다. 등록된 시스템: auth-service, cache-service, gateway-service, log-service, payments-service, web-01. 정확한 시스템 이름을 포함해 다시 질문해 주세요."
-- 'textbox "예: auth-service 로그인 응답이 느려졌어요. 원인 확인해주세요"'
-- button "보내기"

@@ -21,3 +21,6 @@ original_source.zip
 
 # Rebuildable local embedding cache
 data/.cache/
+
+# Presentation files are kept on Desktop
+/docs/presentation/

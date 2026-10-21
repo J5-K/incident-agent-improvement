@@ -1,3 +1,5 @@
+> 제공된 원본 사용 예시입니다. 현재 구현·실행·검증 결과는 [루트 통합 보고서](../README.md)를 기준으로 확인하세요.
+
 # 사용자 가이드 (OpenAI API 기준) — 이 에이전트로 무엇을 할 수 있나요?
 
 이 폴더에는 **운영 중인 시스템의 장애를 진단해주는 AI 에이전트**가 들어있습니다. 사람이
@@ -7,7 +9,7 @@
 줍니다.
 
 > 이 문서는 **"어떻게 켜는지"가 아니라 "켜져 있을 때 무엇을 물어볼 수 있는지"**에 집중한
-> 문서입니다. 서버를 직접 띄우고 싶다면 [README.md](README.md)의 "주요 실행 방법"
+> 문서입니다. 서버를 직접 띄우고 싶다면 [README.md](../README.md)의 "주요 실행 방법"
 > 표에서 `sh/run_agent_openai.sh`를 참고하세요.
 > 아래 화면은 결정론적 Fake나 로컬 Ollama가 아니라 **실제 OpenAI API**(fast=`gpt-4o-mini`,
 > quality=`gpt-4o`)를 직접 호출해 캡처한 **진짜 대화**입니다 — [manual_ollma.md](manual_ollma.md)와
@@ -183,7 +185,7 @@ python3 web_demo_server.py
 
 ## 더 알아보기
 
-- 이 에이전트를 OpenAI 실API로 직접 켜고 싶다면: [README.md](README.md) "주요 실행 방법"
-- 내부적으로 어떤 구성 요소가 맞물려 동작하는지(개발자 관점): [README.md](README.md)
+- 이 에이전트를 OpenAI 실API로 직접 켜고 싶다면: [README.md](../README.md) "주요 실행 방법"
+- 내부적으로 어떤 구성 요소가 맞물려 동작하는지(개발자 관점): [README.md](../README.md)
   "아키텍처 구성도" · "주요 유스케이스별 고수준 시퀀스 다이어그램"
 - 과금 없는 로컬 실모델 버전: [manual_ollma.md](manual_ollma.md)
